@@ -3,7 +3,7 @@ let ClientPayload;
 let HostPayload;
 let SetZoomLevel;
 let SetColorScheme;
-let setAirTemp;
+let SetAirTemp;
 let demo_protocol;
 let Command;
 let ZoomEnum;
@@ -18,7 +18,7 @@ async function loadProto() {
     HostPayload = protobufRoot.lookupType("demo_protocol.HostPayload");
     SetZoomLevel = protobufRoot.lookupType("demo_protocol.SetZoomLevel");
     SetColorScheme = protobufRoot.lookupType("demo_protocol.SetColorScheme");
-    setAirTemp = protobufRoot.lookupType("demo_protocol.SetAirTemp");
+    SetAirTemp = protobufRoot.lookupType("demo_protocol.SetAirTemp");
     Command = protobufRoot.lookupType("demo_protocol.Command");
     demo_protocol = protobufRoot.lookup("demo_protocol");
     ZoomEnum = protobufRoot.lookup("demo_protocol.Zoom");
@@ -101,10 +101,10 @@ function sendCommandToServer(commandData) {
             command.setZoom = SetZoomLevel.create({ zoomLevel: ZoomEnum.values[commandData.zoomLevel] });
             break;
         case 'setPallette':
-             command.setPallette = SetColorScheme.create({ scheme: ColorSchemeEnum.values[commandData.scheme] });
+            command.setPallette = SetColorScheme.create({ scheme: ColorSchemeEnum.values[commandData.scheme] });
             break;
         case 'setAirTemp':
-             command.setAirTemp = setAirTemp.create({ temperature: commandData.temperature });
+            command.setAirTC = SetAirTemp.create({ temperature: commandData.temperature });
             break;
         // ... handle other commands here using a similar pattern
     }
