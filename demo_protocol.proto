@@ -71,10 +71,10 @@ message SetColorScheme {
     ColorScheme scheme = 1;
 }
 message SetAirTemp {
-    int32 airTemp = 1; //[-100..100] C°
+    int32 temperature = 1; //[-100..100] C°
 }
 message SetPowderTemp {
-    int32 powderTemp = 1; //[-100..100] C°
+    int32 temperature = 1; //[-100..100] C°
 }
 message SetAirHumidity {
     int32 humidity = 1; //[0..100]%
@@ -170,7 +170,7 @@ enum CMDDirect {
 	LRF_MEASUREMENT = 2;
 	RESET_CM_CLICKS = 3;
 }
-  
+
 message CoefRow {
 	int32 first = 1;
 	int32 second = 2;

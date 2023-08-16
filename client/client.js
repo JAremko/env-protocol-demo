@@ -3,9 +3,11 @@ let ClientPayload;
 let HostPayload;
 let SetZoomLevel;
 let SetColorScheme;
+let setAirTemp;
 let demo_protocol;
 let Command;
 let ZoomEnum;
+let ColorSchemeEnum;
 
 async function loadProto() {
     const protoResponse = await fetch('demo_protocol.proto');
@@ -16,11 +18,12 @@ async function loadProto() {
     HostPayload = protobufRoot.lookupType("demo_protocol.HostPayload");
     SetZoomLevel = protobufRoot.lookupType("demo_protocol.SetZoomLevel");
     SetColorScheme = protobufRoot.lookupType("demo_protocol.SetColorScheme");
+    setAirTemp = protobufRoot.lookupType("demo_protocol.SetAirTemp");
     Command = protobufRoot.lookupType("demo_protocol.Command");
     demo_protocol = protobufRoot.lookup("demo_protocol");
     ZoomEnum = protobufRoot.lookup("demo_protocol.Zoom");
+    ColorSchemeEnum = protobufRoot.lookup("demo_protocol.ColorScheme");
 }
-
 
 let ws;
 
@@ -67,25 +70,26 @@ async function fetchFragment(fragmentName) {
     }
 }
 
-async function displayCommandInputFields() {
+function displayCommandInputFields() {
     let selectedCommand = document.getElementById('commandType').value;
     let commandInputContainer = document.getElementById('commandInputFields');
-    commandInputContainer.innerHTML = '';
 
-    let fragmentFile;
-    switch (selectedCommand) {
-        case 'setZoom':
-            fragmentFile = 'setZoomFragment.html';
-            break;
-        case 'setPallette':
-            fragmentFile = 'setColorSchemeFragment.html';
-            break;
-        // ... continue for other commands
+    // Clear previous components
+    while (commandInputContainer.firstChild) {
+        commandInputContainer.removeChild(commandInputContainer.firstChild);
     }
 
-    if (fragmentFile) {
-        const fragmentContent = await fetchFragment(fragmentFile);
-        commandInputContainer.innerHTML = fragmentContent;
+    switch (selectedCommand) {
+        case 'setZoom':
+            commandInputContainer.appendChild(new ZoomComponent());
+            break;
+        case 'setPallette':
+            commandInputContainer.appendChild(new ColorSchemeComponent());
+            break;
+        case 'setAirTemp':
+            commandInputContainer.appendChild(new AirTempComponent());
+            break;
+        // ... continue for other commands
     }
 }
 
@@ -94,15 +98,13 @@ function sendCommandToServer(commandData) {
 
     switch (commandData.commandType) {
         case 'setZoom':
-            console.log(ZoomEnum);
-            if (commandData.zoomLevel !== undefined) {
-                command.setZoom = SetZoomLevel.create({ zoomLevel: ZoomEnum.values[commandData.zoomLevel] });
-            }
+            command.setZoom = SetZoomLevel.create({ zoomLevel: ZoomEnum.values[commandData.zoomLevel] });
             break;
         case 'setPallette':
-            if (commandData.scheme) {
-                command.setPallette = SetColorScheme.create({ scheme: commandData.scheme });
-            }
+             command.setPallette = SetColorScheme.create({ scheme: ColorSchemeEnum.values[commandData.scheme] });
+            break;
+        case 'setAirTemp':
+             command.setAirTemp = setAirTemp.create({ temperature: commandData.temperature });
             break;
         // ... handle other commands here using a similar pattern
     }
@@ -136,11 +138,11 @@ function sendCommandToServer(commandData) {
 }
 
 document.getElementById('commandType').addEventListener('change', async function() {
-    await displayCommandInputFields();
+    displayCommandInputFields();
 });
 
 document.getElementById('commandType').addEventListener('change', async function() {
-    await displayCommandInputFields();
+    displayCommandInputFields();
 });
 
 async function init() {
