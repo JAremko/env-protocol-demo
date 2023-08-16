@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gorilla/websocket"
 	dp "github.com/JAremko/env-protocol-demo/demo_protocol"
+	"github.com/golang/protobuf/proto"
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -32,13 +32,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				},
 			}
 
-			jsonPayload, err := json.Marshal(dummyHostPayload)
+			protoPayload, err := proto.Marshal(dummyHostPayload)
 			if err != nil {
-				log.Println("Error marshaling HostPayload to JSON:", err)
+				log.Println("Error marshaling HostPayload to ProtoBuf:", err)
 				return
 			}
 
-			if err := conn.WriteMessage(websocket.TextMessage, jsonPayload); err != nil {
+			if err := conn.WriteMessage(websocket.BinaryMessage, protoPayload); err != nil {
 				log.Println("Write error:", err)
 				return
 			}
@@ -53,13 +53,37 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		if messageType == websocket.TextMessage {
+		if messageType == websocket.BinaryMessage {
 			clientPayload := &dp.ClientPayload{}
-			if err := json.Unmarshal(p, clientPayload); err != nil {
-				log.Println("Error unmarshaling JSON to ClientPayload:", err)
+			if err := proto.Unmarshal(p, clientPayload); err != nil {
+				log.Println("Error unmarshaling ProtoBuf to ClientPayload:", err)
 				continue
 			}
 			log.Println("Received ClientPayload:", clientPayload)
+
+			// Handle response based on the command
+			response := &dp.HostPayload{}
+			commandResponse := &dp.CommandResponse{}
+
+			if clientPayload.GetCommand() != nil {
+				commandResponse.OneofCommandResponse = &dp.CommandResponse_StatusOk{StatusOk: &dp.StatusOk{Code: dp.OkStatusCode_SUCCESS}}
+
+			} else {
+				commandResponse.OneofCommandResponse = &dp.CommandResponse_StatusErr{StatusErr: &dp.StatusError{Code: dp.ErrorStatusCode_FAILURE}}
+
+			}
+			response.Response = commandResponse
+
+			// Send the response
+			responsePayload, err := proto.Marshal(response)
+			if err != nil {
+				log.Println("Error marshaling response to ProtoBuf:", err)
+				continue
+			}
+			if err := conn.WriteMessage(websocket.BinaryMessage, responsePayload); err != nil {
+				log.Println("Write error:", err)
+				continue
+			}
 		}
 	}
 }

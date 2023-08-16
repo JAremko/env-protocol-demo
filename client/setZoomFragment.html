@@ -3,6 +3,7 @@
     <div class="control">
         <div class="select">
             <select id="zoomLevel">
+                <!-- Ensuring these values match the proto enum definition -->
                 <option value="ZOOM_X1">X1</option>
                 <option value="ZOOM_X2">X2</option>
                 <option value="ZOOM_X3">X3</option>
@@ -14,10 +15,8 @@
 </div>
 <button class="button is-primary" onclick="
     const commandData = {
-        command: {
-            commandType: 'set_zoom',
-            zoom_level: document.getElementById('zoomLevel').value
-        }
+        commandType: 'setZoom',
+        zoomLevel: document.getElementById('zoomLevel').value
     };
     sendCommandToServer(commandData);
 ">Send Zoom Level</button>

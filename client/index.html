@@ -18,8 +18,8 @@
             <div class="control">
                 <div class="select is-primary">
                     <select id="commandType" onchange="displayCommandInputFields()">
-                        <option value="set_zoom">Set Zoom Level</option>
-                        <option value="set_pallette">Set Color Scheme</option>
+                        <option value="setZoom">Set Zoom Level</option>
+                        <option value="setPallette">Set Color Scheme</option>
                         <!-- You can add the rest of the commands here -->
                     </select>
                 </div>
@@ -43,8 +43,9 @@
     </div>
 </section>
 
-<script src="client.js"></script>
 <script src="highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
+<script src="protobuf.js"></script>
+<script src="client.js"></script>
+
 </body>
 </html>

@@ -6,24 +6,42 @@ option go_package = "github.com/JAremko/env-protocol-demo/demo_protocol";
 
 message HostPayload {
     HostProfile profile = 1;
-    HostDevStatus dev_status = 2;
+    HostDevStatus devStatus = 2;
     CommandResponse response = 3;
 }
 
 message ClientPayload {
     ClientProfile profile = 1;
-    ClientDevStatus dev_status = 2;
+    ClientDevStatus devStatus = 2;
     Command command = 3;
 }
 
-
 message CommandResponse {
-	oneof command {
-	StatusOk status_ok = 1;
-	StatusError status_err = 2;
+	oneof oneofCommandResponse {
+		StatusOk statusOk = 1;
+		StatusError statusErr = 2;
 	}
 }
 
+message Command
+{
+	oneof oneofCommand {
+		SetZoomLevel setZoom = 1;
+		SetColorScheme setPallette = 2;
+		SetAgcMode setAgc = 3;
+		SetDistance setDst = 4;
+		SetHoldoff setHoldoff = 5;
+		SetZeroing setZeroing = 6;
+		SetCompassOffset setMagOffset = 7;
+		SetAirTemp setAirTC = 8;
+		SetAirHumidity setAirHum = 9;
+		SetAirPressure setAirPress = 10;
+		SetPowderTemp setPowderTemp = 11;
+		SetWind setWind = 12;
+		ButtonPress buttonPress = 13;
+		TriggerCmd cmdTrigger = 14;
+	}
+}
 
 message StatusOk
 {
@@ -44,85 +62,65 @@ enum ErrorStatusCode {
 }
 
 
-message Command
-{
-	oneof command {
-		SetZoomLevel set_zoom = 1;
-		SetColorScheme set_pallette = 2;
-		SetAgcMode set_agc = 3;
-		SetDistance set_dst = 4;
-		SetHoldoff set_holdoff = 5;
-		SetZeroing set_zeroing = 6;
-		SetCompassOffset set_mag_offset = 7;
-		SetAirTemp set_air_t_c = 8;
-		SetAirHumidity set_air_hum = 9;
-		SetAirPressure set_air_press = 10;
-		SetPowderTemp set_powder_temp = 11;
-		SetWind set_wind = 12;
-		ButtonPress button_press = 13;
-		TriggerCmd cmd_trigger = 14;
-	}
-}
-
 message SetZoomLevel {
-    Zoom zoom_level = 1; 
+    Zoom zoomLevel = 1;
 }
 message SetColorScheme {
     ColorScheme scheme = 1;
 }
 message SetAirTemp {
-    int32 air_temp = 1; //[-100..100] C° 
+    int32 airTemp = 1; //[-100..100] C°
 }
 message SetPowderTemp {
-    int32 powder_temp = 1; //[-100..100] C° 
+    int32 powderTemp = 1; //[-100..100] C°
 }
 message SetAirHumidity {
-    int32 air_hum = 1; //[0..100]% 
+    int32 humidity = 1; //[0..100]%
 }
 message SetAirPressure {
-	int32 air_press = 1; //[3000..12000] decaPascal 
+	int32 pressure = 1; //[3000..12000] decaPascal
 }
 message SetWind {
-	int32 wind_direction = 1; //[0..359] °
-	int32 wind_speed = 2; //[0..200] deciMeter per second
+	int32 direction = 1; //[0..359] °
+	int32 speed = 2; //[0..200] deciMeter per second
 }
 message SetDistance {
 	int32 distance = 1; //deciMeter
 }
 message SetAgcMode {
-	AGC_Mode agc_mode = 1;
+	AGC_Mode mode = 1;
 }
 message SetCompassOffset {
-	int32 mag_offset = 1;  //[-360..360] °
+	int32 offset = 1;  //[-360..360] °
 }
 message SetHoldoff{
-	int32 x_hold = 1; //x1000 125 increments [-600000..600000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
-	int32 y_hold = 2; //x1000 125 increments [-600000..600000]
+	int32 x = 1; //x1000 125 increments [-600000..600000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
+	int32 y = 2; //x1000 125 increments [-600000..600000]
 }
 message ButtonPress{
-	ButtonEnum button_pressed = 1;
+	ButtonEnum buttonPressed = 1;
 }
 message TriggerCmd{
-	CMDDirect trigger_cmd = 1;
+	CMDDirect cmd = 1;
 }
 message SetZeroing{
-	int32 zero_x = 1; //x1000 125 increments [-600000..600000]
-	int32 zero_y = 2; //x1000 125 increments [-600000..600000]
+	int32 x = 1; //x1000 125 increments [-600000..600000]
+	int32 y = 2; //x1000 125 increments [-600000..600000]
 }
 
 message HostDevStatus {
     int32 charge = 1; // Represented as percentage
 	Zoom zoom = 2; // zoom multiplier
-	int32 air_temp = 3; //-100..100 C° 
-	int32 air_hum = 4;	//0..100% 
-	int32 air_press = 5; //3000..12000 decaPascal 
-	int32 powder_temp = 6; //-100..100 C° 
-	int32 wind_dir = 7; //0..359 ° 
-	int32 wind_speed = 8; //0..200 deciMeter per second
+	int32 airTemp = 3; //-100..100 C°
+	int32 airHum = 4;	//0..100%
+	int32 airPress = 5; //3000..12000 decaPascal
+	int32 powderTemp = 6; //-100..100 C°
+	int32 windDir = 7; //0..359 °
+	int32 windSpeed = 8; //0..200 deciMeter per second
 	int32 pitch = 9; //-90..90 °
 	int32 cant = 10; //-90..90 °
 	int32 distance = 11; //deciMeter
-	int32 current_profile = 12; //profile index
+	int32 currentProfile = 12; //profile index
 }
 
 message ClientDevStatus {

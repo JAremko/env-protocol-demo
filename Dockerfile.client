@@ -2,6 +2,7 @@ FROM nginx:alpine
 
 COPY client /usr/share/nginx/html/
 COPY nginx.conf /
+COPY demo_protocol.proto /usr/share/nginx/html/
 
 EXPOSE 8086
 

@@ -5,14 +5,14 @@
             <select id="colorScheme">
                 <option value="SEPIA">Sepia</option>
                 <option value="BLACK_HOT">Black hot</option>
-                <option value="WHITE HOT">White hot</option>
+                <option value="WHITE_HOT">White hot</option>
             </select>
         </div>
     </div>
 </div>
 <button class="button is-primary" onclick="
     const commandData = {
-        commandType: 'set_pallette',
+        commandType: 'setPallette',
         scheme: document.getElementById('colorScheme').value
     };
     sendCommandToServer(commandData);
