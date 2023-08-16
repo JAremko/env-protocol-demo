@@ -46,7 +46,7 @@ function setupWebSocket() {
         codeBlock.className = 'json';
         codeBlock.textContent = JSON.stringify(hostPayloadObject, null, 2);
 
-        serverLogs.appendChild(codeBlock);
+        serverLogs.insertBefore(codeBlock, serverLogs.firstChild);
         hljs.highlightBlock(codeBlock);
     };
 
@@ -130,7 +130,7 @@ function sendCommandToServer(commandData) {
         codeBlock.className = 'json';
         codeBlock.textContent = JSON.stringify(message, null, 2);
 
-        clientLogs.appendChild(codeBlock);
+        clientLogs.insertBefore(codeBlock, clientLogs.firstChild);
         hljs.highlightBlock(codeBlock);
     } else {
         console.warn('WebSocket is not open. Cannot send data.');
