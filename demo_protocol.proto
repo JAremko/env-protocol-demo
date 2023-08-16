@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+package demo_protocol;
+
+option go_package = "github.com/JAremko/env-protocol-demo/demo_protocol";
+
+message HostPayload {
+    HostProfile profile = 1;
+    HostDevStatus dev_status = 2;
+    CommandResponse response = 3;
+}
+
+message ClientPayload {
+    ClientProfile profile = 1;
+    ClientDevStatus dev_status = 2;
+    Command command = 3;
+}
+
+
+message CommandResponse {
+	oneof command {
+	StatusOk status_ok = 1;
+	StatusError status_err = 2;
+	}
+}
+
+
+message StatusOk
+{
+	OkStatusCode code = 1;
+}
+
+message StatusError
+{
+	ErrorStatusCode code = 1;
+}
+
+enum OkStatusCode {
+    SUCCESS = 0;
+}
+
+enum ErrorStatusCode {
+    FAILURE = 0;
+}
+
+
+message Command
+{
+	oneof command {
+		SetZoomLevel set_zoom = 1;
+		SetColorScheme set_pallette = 2;
+		SetAgcMode set_agc = 3;
+		SetDistance set_dst = 4;
+		SetHoldoff set_holdoff = 5;
+		SetZeroing set_zeroing = 6;
+		SetCompassOffset set_mag_offset = 7;
+		SetAirTemp set_air_t_c = 8;
+		SetAirHumidity set_air_hum = 9;
+		SetAirPressure set_air_press = 10;
+		SetPowderTemp set_powder_temp = 11;
+		SetWind set_wind = 12;
+		ButtonPress button_press = 13;
+		TriggerCmd cmd_trigger = 14;
+	}
+}
+
+message SetZoomLevel {
+    Zoom zoom_level = 1; 
+}
+message SetColorScheme {
+    ColorScheme scheme = 1;
+}
+message SetAirTemp {
+    int32 air_temp = 1; //[-100..100] C° 
+}
+message SetPowderTemp {
+    int32 powder_temp = 1; //[-100..100] C° 
+}
+message SetAirHumidity {
+    int32 air_hum = 1; //[0..100]% 
+}
+message SetAirPressure {
+	int32 air_press = 1; //[3000..12000] decaPascal 
+}
+message SetWind {
+	int32 wind_direction = 1; //[0..359] °
+	int32 wind_speed = 2; //[0..200] deciMeter per second
+}
+message SetDistance {
+	int32 distance = 1; //deciMeter
+}
+message SetAgcMode {
+	AGC_Mode agc_mode = 1;
+}
+message SetCompassOffset {
+	int32 mag_offset = 1;  //[-360..360] °
+}
+message SetHoldoff{
+	int32 x_hold = 1; //x1000 125 increments [-600000..600000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
+	int32 y_hold = 2; //x1000 125 increments [-600000..600000]
+}
+message ButtonPress{
+	ButtonEnum button_pressed = 1;
+}
+message TriggerCmd{
+	CMDDirect trigger_cmd = 1;
+}
+message SetZeroing{
+	int32 zero_x = 1; //x1000 125 increments [-600000..600000]
+	int32 zero_y = 2; //x1000 125 increments [-600000..600000]
+}
+
+message HostDevStatus {
+    int32 charge = 1; // Represented as percentage
+	Zoom zoom = 2; // zoom multiplier
+	int32 air_temp = 3; //-100..100 C° 
+	int32 air_hum = 4;	//0..100% 
+	int32 air_press = 5; //3000..12000 decaPascal 
+	int32 powder_temp = 6; //-100..100 C° 
+	int32 wind_dir = 7; //0..359 ° 
+	int32 wind_speed = 8; //0..200 deciMeter per second
+	int32 pitch = 9; //-90..90 °
+	int32 cant = 10; //-90..90 °
+	int32 distance = 11; //deciMeter
+	int32 current_profile = 12; //profile index
+}
+
+message ClientDevStatus {
+}
+
+enum ColorScheme {
+    SEPIA = 0;
+    BLACK_HOT = 1;
+    WHITE_HOT = 2;
+}
+
+enum AGC_Mode {
+	AUTO_1 = 0;
+	AUTO_2 = 1;
+}
+
+enum Zoom{
+	ZOOM_X1 = 0;
+	ZOOM_X2 = 1;
+	ZOOM_X3 = 2;
+	ZOOM_X4 = 3;
+	ZOOM_X6 = 4;
+}
+
+enum ButtonEnum {
+	MENU_SHORT = 0;
+	MENU_LONG = 1;
+	UP_SHORT = 2;
+	UP_LONG = 3;
+	DOWN_SHORT = 4;
+	DOWN_LONG = 5;
+	LRF_SHORT = 6;
+	LRF_LONG = 7;
+	REC_SHORT = 8;
+	REC_LONG = 9;
+}
+
+enum CMDDirect {
+	CALIBRATE_ACCEL_GYRO = 0;
+	LRF_MEASUREMENT = 1;
+	RESET_CM_CLICKS = 2;
+}
+  
+message CoefRow {
+	int32 first = 1;
+	int32 second = 2;
+}
+
+enum DType {
+	VALUE = 0;
+	INDEX = 1;
+}
+
+message SwPos {
+	int32 c_idx = 1;
+	int32 reticle_idx = 2;
+	int32 zoom = 3;
+	int32 distance = 4;
+	DType distance_from = 5;
+}
+
+enum GType {
+	G1 = 0;
+	G7 = 1;
+	CUSTOM = 2;
+}
+
+enum TwistDir {
+	RIGHT = 0;
+	LEFT = 1;
+}
+
+message HostProfile {
+	string profile_name = 1;
+	string cartridge_name = 2;
+	string bullet_name = 3;
+	string short_name_top = 4;
+	string short_name_bot = 5;
+	string user_note = 6;
+	int32 zero_x = 7;
+	int32 zero_y = 8;
+	int32 sc_height = 9;
+	int32 r_twist = 10;
+	int32 c_muzzle_velocity = 11;
+	int32 c_zero_temperature = 12;
+	int32 c_t_coeff = 13;
+	int32 c_zero_distance_idx = 14;
+	int32 c_zero_air_temperature = 15;
+	int32 c_zero_air_pressure = 16;
+	int32 c_zero_air_humidity = 17;
+	int32 c_zero_w_pitch = 18;
+	int32 c_zero_p_temperature = 19;
+	int32 b_diameter = 20;
+	int32 b_weight = 21;
+	int32 b_length = 22;
+	TwistDir twist_dir = 23;
+	GType bc_type = 24;
+	repeated SwPos switches = 25;
+	repeated int32 distances = 26;
+	repeated CoefRow coef_rows = 27;
+	string caliber = 28;
+	string device_uuid = 29;
+}
+
+message ClientProfile {
+	reserved 1, 2, 3;
+	reserved "profile_name", "cartridge_name", "bullet_name";
+	string short_name_top = 4;
+	string short_name_bot = 5;
+	string user_note = 6;
+	int32 zero_x = 7;
+	int32 zero_y = 8;
+	int32 sc_height = 9;
+	int32 r_twist = 10;
+	int32 c_muzzle_velocity = 11;
+	int32 c_zero_temperature = 12;
+	int32 c_t_coeff = 13;
+	int32 c_zero_distance_idx = 14;
+	int32 c_zero_air_temperature = 15;
+	int32 c_zero_air_pressure = 16;
+	int32 c_zero_air_humidity = 17;
+	int32 c_zero_w_pitch = 18;
+	int32 c_zero_p_temperature = 19;
+	int32 b_diameter = 20;
+	int32 b_weight = 21;
+	int32 b_length = 22;
+	TwistDir twist_dir = 23;
+	GType bc_type = 24;
+	repeated SwPos switches = 25;
+	repeated int32 distances = 26;
+	repeated CoefRow coef_rows = 27;
+	string caliber = 28;
+	string device_uuid = 29;
+}

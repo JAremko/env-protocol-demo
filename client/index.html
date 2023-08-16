@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile transfer demo</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="bulma.css">
+    <link rel="stylesheet" href="monokai-sublime.min.css">
+</head>
+<body>
+
+<section class="section">
+    <div class="container">
+        <h1 class="title">Command Control Panel</h1>
+        <!-- Dropdown for selecting the command type -->
+        <h2 class="subtitle">Select Command</h2>
+        <div class="field">
+            <label class="label">Command Type</label>
+            <div class="control">
+                <div class="select is-primary">
+                    <select id="commandType" onchange="displayCommandInputFields()">
+                        <option value="set_zoom">Set Zoom Level</option>
+                        <option value="set_pallette">Set Color Scheme</option>
+                        <!-- You can add the rest of the commands here -->
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Container to display the input fields for the selected command -->
+        <div id="commandInputFields"></div>
+
+        <!-- List boxes for logs -->
+        <div class="columns">
+            <div class="column">
+                <h2 class="subtitle">Logs from server</h2>
+                <pre id="serverLogs"><code class="json"></code></pre>
+            </div>
+            <div class="column">
+                <h2 class="subtitle">Logs to server</h2>
+                <pre id="clientLogs"><code class="json"></code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="client.js"></script>
+<script src="highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

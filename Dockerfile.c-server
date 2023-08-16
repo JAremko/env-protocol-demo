@@ -1,0 +1,17 @@
+FROM gcc:latest
+
+# Set the working directory for C code
+WORKDIR /app
+
+# Copy C code and COBS library into the Docker image
+COPY server/main.c .
+COPY server/cobs.c .
+COPY server/cobs.h .
+
+# Compile C code with pthread support and COBS library
+RUN gcc -o c_server main.c cobs.c -lpthread
+
+# Make the C server executable (though this is unnecessary, as gcc already produces an executable output)
+RUN chmod +x c_server
+
+CMD ["/app/c_server"]

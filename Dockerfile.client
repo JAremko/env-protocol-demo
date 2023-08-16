@@ -1,0 +1,9 @@
+FROM nginx:alpine
+
+COPY client /usr/share/nginx/html/
+COPY nginx.conf /
+
+EXPOSE 8086
+
+CMD ["nginx", "-c", "/nginx.conf", "-g", "daemon off;"]
+

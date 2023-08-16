@@ -1,0 +1,19 @@
+<div class="field">
+    <label class="label">Color Scheme</label>
+    <div class="control">
+        <div class="select">
+            <select id="colorScheme">
+                <option value="SEPIA">Sepia</option>
+                <option value="BLACK_HOT">Black hot</option>
+                <option value="WHITE HOT">White hot</option>
+            </select>
+        </div>
+    </div>
+</div>
+<button class="button is-primary" onclick="
+    const commandData = {
+        commandType: 'set_pallette',
+        scheme: document.getElementById('colorScheme').value
+    };
+    sendCommandToServer(commandData);
+">Send Color Scheme</button>
