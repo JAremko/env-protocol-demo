@@ -54,11 +54,13 @@ message StatusError
 }
 
 enum OkStatusCode {
-    SUCCESS = 0;
+	UNKNOWN_OK_STATUS = 0;
+    SUCCESS = 1;
 }
 
 enum ErrorStatusCode {
-    FAILURE = 0;
+	UNKNOWN_ERROR_STATUS = 0;
+    FAILURE = 1;
 }
 
 
@@ -127,41 +129,46 @@ message ClientDevStatus {
 }
 
 enum ColorScheme {
-    SEPIA = 0;
-    BLACK_HOT = 1;
-    WHITE_HOT = 2;
+	UNKNOWN_COLOR_SHEME = 0;
+    SEPIA = 1;
+    BLACK_HOT = 2;
+    WHITE_HOT = 3;
 }
 
 enum AGC_Mode {
-	AUTO_1 = 0;
-	AUTO_2 = 1;
+	UNKNOWN_AGC_MODE = 0;
+	AUTO_1 = 1;
+	AUTO_2 = 2;
 }
 
-enum Zoom{
-	ZOOM_X1 = 0;
-	ZOOM_X2 = 1;
-	ZOOM_X3 = 2;
-	ZOOM_X4 = 3;
-	ZOOM_X6 = 4;
+enum Zoom {
+	UNKNOWN_ZOOM_LEVEL = 0;
+	ZOOM_X1 = 1;
+	ZOOM_X2 = 2;
+	ZOOM_X3 = 3;
+	ZOOM_X4 = 4;
+	ZOOM_X6 = 5;
 }
 
 enum ButtonEnum {
-	MENU_SHORT = 0;
-	MENU_LONG = 1;
-	UP_SHORT = 2;
-	UP_LONG = 3;
-	DOWN_SHORT = 4;
-	DOWN_LONG = 5;
-	LRF_SHORT = 6;
-	LRF_LONG = 7;
-	REC_SHORT = 8;
-	REC_LONG = 9;
+	UNKNOWN_BUTTON = 0;
+	MENU_SHORT = 1;
+	MENU_LONG = 2;
+	UP_SHORT = 3;
+	UP_LONG = 4;
+	DOWN_SHORT = 5;
+	DOWN_LONG = 6;
+	LRF_SHORT = 7;
+	LRF_LONG = 8;
+	REC_SHORT = 9;
+	REC_LONG = 10;
 }
 
 enum CMDDirect {
-	CALIBRATE_ACCEL_GYRO = 0;
-	LRF_MEASUREMENT = 1;
-	RESET_CM_CLICKS = 2;
+	UNKNOWN_CMD_DIRECTION = 0;
+	CALIBRATE_ACCEL_GYRO = 1;
+	LRF_MEASUREMENT = 2;
+	RESET_CM_CLICKS = 3;
 }
   
 message CoefRow {
