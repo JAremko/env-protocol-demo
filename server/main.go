@@ -6,6 +6,7 @@ import (
 	"time"
 
 	dp "github.com/JAremko/env-protocol-demo/demo_protocol"
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 )
@@ -14,6 +15,16 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+func logPb(message string, pb proto.Message) {
+	marshaler := jsonpb.Marshaler{EmitDefaults: true}
+	jsonStr, err := marshaler.MarshalToString(pb)
+	if err != nil {
+		log.Printf("%s, but failed to convert protobuf to JSON: %v", message, err)
+		return
+	}
+	log.Printf("%s: %s", message, jsonStr)
 }
 
 func handleWriteConnection(conn *websocket.Conn) {
@@ -62,7 +73,8 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 		return
 	}
 
-	log.Println("Received ClientPayload:", clientPayload)
+	logPb("Received ClientPayload", clientPayload)
+
 	response := createResponse(clientPayload)
 
 	responsePayload, err := proto.Marshal(response)
@@ -75,6 +87,7 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 		log.Println("Write error:", err)
 	}
 }
+
 
 func createResponse(clientPayload *dp.ClientPayload) *dp.HostPayload {
 	response := &dp.HostPayload{}

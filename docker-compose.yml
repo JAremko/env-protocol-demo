@@ -5,13 +5,15 @@ services:
       context: .
       dockerfile: Dockerfile.client
     image: ctl-api-example-client
-    network_mode: host
+    ports:
+      - "8086:8086"
   go-server:
     build:
       context: .
       dockerfile: Dockerfile.go-server
     image: ctl-api-example-go-server
-    network_mode: host
+    ports:
+      - "8085:8085"
     volumes:
       - shared-pipes:/tmp
   c-server:
@@ -19,7 +21,6 @@ services:
       context: .
       dockerfile: Dockerfile.c-server
     image: ctl-api-example-c-server
-    network_mode: host
     volumes:
       - shared-pipes:/tmp
 

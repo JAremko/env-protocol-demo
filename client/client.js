@@ -39,6 +39,7 @@ function setupWebSocket() {
         const hostPayload = HostPayload.decode(new Uint8Array(event.data));
         const hostPayloadObject = HostPayload.toObject(hostPayload, {
             enums: String,
+            defaults: true
         });
 
         const serverLogs = document.getElementById('serverLogs');
