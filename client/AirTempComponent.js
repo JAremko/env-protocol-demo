@@ -3,7 +3,7 @@ class AirTempComponent extends HTMLElement {
         this.innerHTML = `
             <div>
                 <div class="field">
-                    <label class="label">Air Temperature (C°)</label>
+                    <label class="label">Air Temperature</label>
                     <div class="control">
                         <input type="range" id="airTempSlider" min="-100" max="100" value="0">
                         <input type="number" id="airTempNumeric" min="-100" max="100" value="0">

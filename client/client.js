@@ -90,6 +90,9 @@ function displayCommandInputFields() {
         case 'setAirTemp':
             commandInputContainer.appendChild(new AirTempComponent());
             break;
+        case 'invalid':
+            commandInputContainer.appendChild(new InvalidDataComponent());
+            break;
         // ... continue for other commands
     }
 }
@@ -106,6 +109,9 @@ function sendCommandToServer(commandData) {
             break;
         case 'setAirTemp':
             command.setAirTC = SetAirTemp.create({ temperature: commandData.temperature });
+            break;
+        case 'invalid':
+            // Keep command empty;
             break;
         // ... handle other commands here using a similar pattern
     }

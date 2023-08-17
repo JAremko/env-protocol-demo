@@ -1,44 +1,72 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Profile transfer demo</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="bulma.css">
     <link rel="stylesheet" href="monokai-sublime.min.css">
 </head>
+
 <body>
 
 <section class="section">
     <div class="container">
         <h1 class="title">Command Control Panel</h1>
-        <!-- Dropdown for selecting the command type -->
-        <h2 class="subtitle">Select Command</h2>
-        <div class="field">
-            <label class="label">Command Type</label>
-            <div class="control">
-                <div class="select is-primary">
-                    <select id="commandType" onchange="displayCommandInputFields()">
-                        <option value="setZoom">Set Zoom Level</option>
-                        <option value="setPallette">Set Color Scheme</option>
-                        <option value="setAirTemp">Set Air Temperature</option>
-                        <!-- TODO: Add the rest of the commands here -->
-                    </select>
-                </div>
-            </div>
-        </div>
 
-        <!-- Container to display the input fields for the selected command -->
-        <div id="commandInputFields"></div>
-
-        <!-- List boxes for logs -->
         <div class="columns">
-            <div class="column">
-                <h2 class="subtitle">Logs from server</h2>
-                <pre id="serverLogs"><code class="json"></code></pre>
+            <!-- Command input fields column -->
+            <div class="column is-4">
+
+                <!-- Card for grouping dropdown and command input fields -->
+                <div class="card">
+                    <header class="card-header">
+                        <h2 class="card-header-title subtitle">Select Command</h2>
+                    </header>
+                    <div class="card-content">
+
+                        <div class="field">
+                            <label class="label">Command Type</label>
+                            <div class="control">
+                                <div class="select is-primary">
+                                    <select id="commandType" onchange="displayCommandInputFields()">
+                                        <option value="setZoom">Set Zoom Level</option>
+                                        <option value="setPallette">Set Color Scheme</option>
+                                        <option value="setAirTemp">Set Air Temperature</option>
+                                        <option value="invalid">Send invalid data</option>
+                                        <!-- TODO: Add the rest of the commands here -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Placeholder for dynamically loaded command fields -->
+                        <div id="commandInputFields"></div>
+                    </div>
+                </div>
+
             </div>
-            <div class="column">
-                <h2 class="subtitle">Logs to server</h2>
-                <pre id="clientLogs"><code class="json"></code></pre>
+
+            <!-- Logs column -->
+            <div class="column is-8">
+                <!-- Panel for logs -->
+                <div class="panel">
+                    <p class="panel-heading">Logs</p>
+                    <div class="columns">
+                        <!-- Logs from server column -->
+                        <div class="column">
+                            <h2 class="subtitle">Logs from server</h2>
+                            <pre id="serverLogs"><code class="json"></code></pre>
+                        </div>
+
+                        <!-- Logs to server column -->
+                        <div class="column">
+                            <h2 class="subtitle">Logs to server</h2>
+                            <pre id="clientLogs"><code class="json"></code></pre>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -49,7 +77,9 @@
 <script src="AirTempComponent.js"></script>
 <script src="ColorSchemeComponent.js"></script>
 <script src="ZoomComponent.js"></script>
+<script src="InvalidDataComponent.js"></script>
 <script src="client.js"></script>
 
 </body>
+
 </html>
