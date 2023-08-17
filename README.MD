@@ -19,6 +19,7 @@ This project integrates three distinct technologies: a C server that processes P
   - [Dependencies](#dependencies-go-websocket)
   - [How It Works](#how-it-works-go-websocket)
   - [Note](#note-go-websocket)
+  - [Usage](#usage)
 
 ---
 
@@ -129,3 +130,70 @@ This project integrates three distinct technologies: a C server that processes P
 
 ---
 
+# Usage <a name="usage"></a>
+
+This section provides detailed instructions on how to set up and run the provided Docker environment on both Windows and Linux. This is intended for people new to Docker.
+
+## Prerequisites
+
+- Ensure you have a working internet connection.
+- If you already have Docker installed, you can skip the installation step for your respective OS.
+
+## Windows Installation
+
+1. **Install Docker Desktop for Windows**:
+   - Download Docker Desktop for Windows from [Docker Hub](https://hub.docker.com/editions/community/docker-ce-desktop-windows).
+   - Follow the installation instructions. During installation, ensure that you choose to use Linux containers (this is the default).
+   - Once installed, start Docker Desktop from the start menu. You'll see an icon in the system tray indicating that Docker is running.
+
+2. **Enable WSL 2 (Windows Subsystem for Linux 2)**:
+   - Ensure your version of Windows supports WSL 2 and that it's set as your default WSL version.
+   - If needed, follow [Microsoft's WSL 2 installation guide](https://docs.microsoft.com/en-us/windows/wsl/install).
+
+## Linux Installation
+
+1. **Update your local repositories**:
+   ```
+   sudo apt-get update
+   ```
+
+2. **Install Docker**:
+   - Install Docker using the convenience script (note: always inspect scripts from the internet before running them):
+     ```
+     curl -fsSL https://get.docker.com -o get-docker.sh
+     sudo sh get-docker.sh
+     ```
+
+3. **Add your user to the Docker group** (this allows you to run Docker commands without `sudo`):
+   ```
+   sudo usermod -aG docker ${USER}
+   ```
+   - Log out and log back in for the changes to take effect.
+
+4. **Install Docker Compose**:
+   ```
+   sudo apt-get install docker-compose
+   ```
+
+## Running the Docker Environment
+
+1. **Navigate to your project directory**:
+   - For Windows users using WSL, navigate to your project directory inside your WSL terminal.
+   - For Linux users, open a terminal and navigate to your project directory.
+
+2. **Build and start the Docker services**:
+   ```
+   docker-compose up --build
+   ```
+
+   - This command will read the `docker-compose.yml` file, build the necessary images, and start the associated containers.
+
+3. **Access the client**:
+   - Open a web browser and navigate to `http://localhost:8086` to access the client interface.
+
+4. **Shutdown the Docker environment** (when done):
+   ```
+   docker-compose down -v
+   ```
+
+---
