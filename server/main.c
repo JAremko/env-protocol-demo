@@ -34,14 +34,17 @@ void *handleCommands(void *args) {
     static uint8_t decodedBuffer[MAX_BUFFER_SIZE];
     static uint8_t encodedBuffer[MAX_BUFFER_SIZE];
 
-    int pipeToC = open(PIPE_NAME_TO_C, O_RDONLY);
+    printf("[C] Opening pipes\n");
     int pipeFromC = open(PIPE_NAME_FROM_C, O_WRONLY);
+    int pipeToC = open(PIPE_NAME_TO_C, O_RDONLY);
+    printf("[C] Pipes opened\n");
 
     if (pipeToC < 0 || pipeFromC < 0) {
         perror("[C] Error opening pipes");
         return NULL;
     }
 
+    printf("[C] Entering main loop\n");
     while (1) {
         ssize_t bytesRead = readUntilDelimiter(pipeToC, buffer, MAX_BUFFER_SIZE);
 
@@ -85,11 +88,14 @@ void *handleCommands(void *args) {
 
 int main() {
 
+    printf("[C] Starting\n");
     setbuf(stdout, NULL);
     setbuf(stderr, NULL);
 
     unlink(PIPE_NAME_TO_C);
     unlink(PIPE_NAME_FROM_C);
+
+    printf("[C] Creating pipes\n");
 
     if (mkfifo(PIPE_NAME_TO_C, 0666) < 0) {
         perror("[C] Error creating PIPE_NAME_TO_C");
@@ -100,8 +106,13 @@ int main() {
         exit(1);
     }
 
+    printf("[C] Starting handlear thread\n");
+
     pthread_t commandThread;
     pthread_create(&commandThread, NULL, handleCommands, NULL);
+
+    printf("[C] Handling pipes...\n");
+
     pthread_join(commandThread, NULL);
 
     return 0;

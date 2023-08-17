@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 	"errors"
+	"log"
 )
 
 // Constants
@@ -20,17 +21,28 @@ var pipeFromC *os.File
 
 func initPipes() {
 	var err error
+	log.Println("[Go] Initializing pipes...")
+
 	for {
-		pipeFromC, err = os.Open(PIPE_NAME_FROM_C)
+		log.Printf("[Go] Attempting to open %s...", PIPE_NAME_FROM_C)
+		pipeFromC, err = os.OpenFile(PIPE_NAME_FROM_C, os.O_RDONLY, os.ModeNamedPipe)
 		if err == nil {
+			log.Printf("[Go] Successfully opened %s", PIPE_NAME_FROM_C)
 			break
+		} else {
+			log.Printf("[Go] Failed to open %s. Error: %v", PIPE_NAME_FROM_C, err)
 		}
 		time.Sleep(1 * time.Second)
 	}
+
 	for {
+		log.Printf("[Go] Attempting to open %s...", PIPE_NAME_TO_C)
 		pipeToC, err = os.OpenFile(PIPE_NAME_TO_C, os.O_WRONLY, os.ModeNamedPipe)
 		if err == nil {
+			log.Printf("[Go] Successfully opened %s", PIPE_NAME_TO_C)
 			break
+		} else {
+			log.Printf("[Go] Failed to open %s. Error: %v", PIPE_NAME_TO_C, err)
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -75,14 +87,14 @@ func ReceivePacketFromC() ([]byte, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Unreachable code")
+	return nil, fmt.Errorf("[Go] Unreachable code")
 }
 
 func SendPacketToC(data *[]byte) error {
 	cobsBuffer := Encode(*data)
 
 	if cobsBuffer == nil {
-		return fmt.Errorf("Failed to encode COBS for buffer of size %d", len(*data))
+		return fmt.Errorf("[Go] Failed to encode COBS for buffer of size %d", len(*data))
 	}
 
 	fmt.Printf("[Go] Sending COBS buffer: %x\n", cobsBuffer)
@@ -117,7 +129,7 @@ type Encoder interface {
 }
 
 // ErrCorrupt indicates the input was corrupt
-var ErrCorrupt = errors.New("cobs: corrupt input")
+var ErrCorrupt = errors.New("[Go] Cobs: corrupt input")
 
 type encoder int
 
