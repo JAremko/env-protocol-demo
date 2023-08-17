@@ -7,6 +7,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "cobs.h"
+#include "demo_protocol.pb.h"
+#include "pb_decode.h"
+#include "pb_encode.h"
 
 #define PIPE_NAME_TO_C "/tmp/toC"
 #define PIPE_NAME_FROM_C "/tmp/fromC"
@@ -54,28 +57,61 @@ void *handleCommands(void *args) {
         }
         printf("\n");
 
-        cobs_decode_result decodeRes = cobs_decode(decodedBuffer, sizeof(decodedBuffer), buffer, bytesRead - 1);  // Decoding incoming COBS
-
+        cobs_decode_result decodeRes = cobs_decode(decodedBuffer, sizeof(decodedBuffer), buffer, bytesRead - 1);
         if (decodeRes.status != COBS_DECODE_OK) {
             perror("[C] COBS decoding error");
-            continue;  // Skip processing this packet and move to the next one
+            continue;
         }
 
-        cobs_encode_result encodeRes = cobs_encode(encodedBuffer, MAX_BUFFER_SIZE, decodedBuffer, decodeRes.out_len);  // Re-encode it
+        demo_protocol_ClientPayload client_payload = demo_protocol_ClientPayload_init_zero;
+        pb_istream_t stream = pb_istream_from_buffer(decodedBuffer, decodeRes.out_len);
+        if (!pb_decode(&stream, demo_protocol_ClientPayload_fields, &client_payload)) {
+            printf("[C] Failed to decode ClientPayload: %s\n", PB_GET_ERROR(&stream));
+            continue;
+        }
 
+        bool is_known_command;
+        switch (client_payload.command.which_oneofCommand)
+        {
+            case demo_protocol_Command_setZoom_tag:
+            case demo_protocol_Command_setPallette_tag:
+            case demo_protocol_Command_setAirTC_tag:
+                is_known_command = true;
+                break;
+            default:
+                is_known_command = false;
+        }
+
+        demo_protocol_HostPayload host_payload = demo_protocol_HostPayload_init_zero;
+        host_payload.has_response = true;
+        if (is_known_command) {
+            host_payload.response.which_oneofCommandResponse = demo_protocol_CommandResponse_statusOk_tag;
+            host_payload.response.oneofCommandResponse.statusOk.code = demo_protocol_OkStatusCode_SUCCESS;
+        } else {
+            host_payload.response.which_oneofCommandResponse = demo_protocol_CommandResponse_statusErr_tag;
+            host_payload.response.oneofCommandResponse.statusErr.code = demo_protocol_ErrorStatusCode_FAILURE;
+        }
+
+        pb_ostream_t output_stream = pb_ostream_from_buffer(decodedBuffer, sizeof(decodedBuffer));
+        if (!pb_encode(&output_stream, demo_protocol_HostPayload_fields, &host_payload)) {
+            printf("[C] Failed to encode HostPayload: %s\n", PB_GET_ERROR(&output_stream));
+            continue;
+        }
+
+        cobs_encode_result encodeRes = cobs_encode(encodedBuffer, MAX_BUFFER_SIZE, decodedBuffer, output_stream.bytes_written);
         if (encodeRes.status != COBS_ENCODE_OK) {
             perror("[C] COBS encoding error");
-            continue;  // Skip sending this packet and move to the next one
+            continue;
         }
 
-        printf("[C] Echoing COBS buffer: ");
+        printf("[C] Sending COBS buffer: ");
         for (size_t i = 0; i < encodeRes.out_len; i++) {
             printf("%02x", encodedBuffer[i]);
         }
         printf("\n");
 
         if (write(pipeFromC, encodedBuffer, encodeRes.out_len) < 0 ||
-            write(pipeFromC, "\0", 1) < 0) {  // Include delimiter after COBS-encoded data
+            write(pipeFromC, "\0", 1) < 0) {
             perror("[C] Error writing to pipe");
             break;
         }

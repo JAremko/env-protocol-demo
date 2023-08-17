@@ -61,10 +61,10 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 		return
 	}
 
-	// Unmarshal the C response as ClientPayload and log it
-	cResponsePayload := &dp.ClientPayload{}
+	// Unmarshal the C response as HostPayload and log it
+	cResponsePayload := &dp.HostPayload{}
 	if err := proto.Unmarshal(cResponse, cResponsePayload); err != nil {
-		log.Println("[Go] Error unmarshaling C pipe response to ClientPayload:", err)
+		log.Println("[Go] Error unmarshaling C pipe response to HostPayload:", err)
 		return
 	}
 	logPb("Received C pipe Payload", cResponsePayload)
