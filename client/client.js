@@ -1,7 +1,3 @@
-const protobufNamespaces = {
-    demo_protocol: null
-};
-
 const protobufMessageTypes = {
     ClientPayload: null,
     HostPayload: null,
@@ -31,8 +27,6 @@ async function loadProto() {
     for (let enumType in protobufEnums) {
         protobufEnums[enumType] = protobufRoot.lookup(`demo_protocol.${enumType}`);
     }
-
-    protobufNamespaces.demo_protocol = protobufRoot.lookup("demo_protocol");
 
     getCommandMappings = () => ({
         setZoom: data => ({ setZoom: protobufMessageTypes.SetZoomLevel.create({ zoomLevel: protobufEnums.Zoom.values[data.zoomLevel] }) }),
