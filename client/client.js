@@ -1,70 +1,77 @@
-let protobufRoot;
-let ClientPayload;
-let HostPayload;
-let SetZoomLevel;
-let SetColorScheme;
-let SetAirTemp;
-let demo_protocol;
-let Command;
-let ZoomEnum;
-let ColorSchemeEnum;
+const protobufNamespaces = {
+    demo_protocol: null
+};
+
+const protobufMessageTypes = {
+    ClientPayload: null,
+    HostPayload: null,
+    SetZoomLevel: null,
+    SetColorScheme: null,
+    SetAirTemp: null,
+    Command: null
+};
+
+const protobufEnums = {
+    Zoom: null,
+    ColorScheme: null
+};
+
+let ws;
+let getCommandMappings;
 
 async function loadProto() {
     const protoResponse = await fetch('demo_protocol.proto');
     const protoText = await protoResponse.text();
+    const protobufRoot = protobuf.parse(protoText).root;
 
-    protobufRoot = protobuf.parse(protoText).root;
-    ClientPayload = protobufRoot.lookupType("demo_protocol.ClientPayload");
-    HostPayload = protobufRoot.lookupType("demo_protocol.HostPayload");
-    SetZoomLevel = protobufRoot.lookupType("demo_protocol.SetZoomLevel");
-    SetColorScheme = protobufRoot.lookupType("demo_protocol.SetColorScheme");
-    SetAirTemp = protobufRoot.lookupType("demo_protocol.SetAirTemp");
-    Command = protobufRoot.lookupType("demo_protocol.Command");
-    demo_protocol = protobufRoot.lookup("demo_protocol");
-    ZoomEnum = protobufRoot.lookup("demo_protocol.Zoom");
-    ColorSchemeEnum = protobufRoot.lookup("demo_protocol.ColorScheme");
+    for (let type in protobufMessageTypes) {
+        protobufMessageTypes[type] = protobufRoot.lookupType(`demo_protocol.${type}`);
+    }
+
+    for (let enumType in protobufEnums) {
+        protobufEnums[enumType] = protobufRoot.lookup(`demo_protocol.${enumType}`);
+    }
+
+    protobufNamespaces.demo_protocol = protobufRoot.lookup("demo_protocol");
+
+    getCommandMappings = () => ({
+        setZoom: data => ({ setZoom: protobufMessageTypes.SetZoomLevel.create({ zoomLevel: protobufEnums.Zoom.values[data.zoomLevel] }) }),
+        setPallette: data => ({ setPallette: protobufMessageTypes.SetColorScheme.create({ scheme: protobufEnums.ColorScheme.values[data.scheme] }) }),
+        setAirTemp: data => ({ setAirTC: protobufMessageTypes.SetAirTemp.create({ temperature: data.temperature }) }),
+        invalid: () => ({})
+    });
 }
-
-let ws;
 
 function setupWebSocket() {
     ws = new WebSocket('ws://localhost:8085');
     ws.binaryType = "arraybuffer";
 
-    ws.onopen = function(event) {
-        console.log('WebSocket connection opened:', event);
-    };
+    ws.onopen = event => console.log('WebSocket connection opened:', event);
+    ws.onerror = event => console.error('WebSocket error:', event);
+    ws.onclose = event => console.log('WebSocket connection closed:', event);
 
-    ws.onmessage = function(event) {
-        const hostPayload = HostPayload.decode(new Uint8Array(event.data));
-        const hostPayloadObject = HostPayload.toObject(hostPayload, {
-            enums: String,
-            defaults: true
-        });
+    ws.onmessage = event => handleServerMessage(event.data);
+}
 
-        const serverLogs = document.getElementById('serverLogs');
-        const codeBlock = document.createElement('code');
-        codeBlock.className = 'json';
-        codeBlock.textContent = JSON.stringify(hostPayloadObject, null, 2);
+function handleServerMessage(data) {
+    const hostPayload = protobufMessageTypes.HostPayload.decode(new Uint8Array(data));
+    const hostPayloadObject = protobufMessageTypes.HostPayload.toObject(hostPayload, { enums: String, defaults: true });
+    displayServerLog(hostPayloadObject);
+}
 
-        serverLogs.insertBefore(codeBlock, serverLogs.firstChild);
-        hljs.highlightBlock(codeBlock);
-    };
+function displayServerLog(data) {
+    const serverLogs = document.getElementById('serverLogs');
+    const codeBlock = document.createElement('code');
+    codeBlock.className = 'json';
+    codeBlock.textContent = JSON.stringify(data, null, 2);
 
-    ws.onerror = function(event) {
-        console.error('WebSocket error:', event);
-    };
-
-    ws.onclose = function(event) {
-        console.log('WebSocket connection closed:', event);
-    };
+    serverLogs.insertBefore(codeBlock, serverLogs.firstChild);
+    hljs.highlightBlock(codeBlock);
 }
 
 async function fetchFragment(fragmentName) {
     try {
-        const response = await fetch(fragmentName);
-        const html = await response.text();
-        return html;
+        return await (await fetch(fragmentName)).text();
     } catch (error) {
         console.warn('Error fetching the fragment:', error);
         return '';
@@ -72,85 +79,65 @@ async function fetchFragment(fragmentName) {
 }
 
 function displayCommandInputFields() {
-    let selectedCommand = document.getElementById('commandType').value;
-    let commandInputContainer = document.getElementById('commandInputFields');
+    const selectedCommand = document.getElementById('commandType').value;
+    const commandInputContainer = document.getElementById('commandInputFields');
+    commandInputContainer.innerHTML = ''; // Clear the container
 
-    // Clear previous components
-    while (commandInputContainer.firstChild) {
-        commandInputContainer.removeChild(commandInputContainer.firstChild);
-    }
-
+    let component;
     switch (selectedCommand) {
         case 'setZoom':
-            commandInputContainer.appendChild(new ZoomComponent());
+            component = new ZoomComponent();
             break;
         case 'setPallette':
-            commandInputContainer.appendChild(new ColorSchemeComponent());
+            component = new ColorSchemeComponent();
             break;
         case 'setAirTemp':
-            commandInputContainer.appendChild(new AirTempComponent());
+            component = new AirTempComponent();
             break;
         case 'invalid':
-            commandInputContainer.appendChild(new InvalidDataComponent());
+            component = new InvalidDataComponent();
             break;
-        // ... continue for other commands
+    }
+
+    if (component) {
+        commandInputContainer.appendChild(component);
     }
 }
 
 function sendCommandToServer(commandData) {
-    const command = {};
+    const commandMappings = getCommandMappings();
+    const command = commandMappings[commandData.commandType](commandData);
 
-    switch (commandData.commandType) {
-        case 'setZoom':
-            command.setZoom = SetZoomLevel.create({ zoomLevel: ZoomEnum.values[commandData.zoomLevel] });
-            break;
-        case 'setPallette':
-            command.setPallette = SetColorScheme.create({ scheme: ColorSchemeEnum.values[commandData.scheme] });
-            break;
-        case 'setAirTemp':
-            command.setAirTC = SetAirTemp.create({ temperature: commandData.temperature });
-            break;
-        case 'invalid':
-            // Keep command empty;
-            break;
-        // ... handle other commands here using a similar pattern
-    }
+    const clientPayloadObject = { command };
 
-    const clientPayloadObject = {
-        command: command
-    };
-
-    const errMsg = ClientPayload.verify(clientPayloadObject);
+    const errMsg = protobufMessageTypes.ClientPayload.verify(clientPayloadObject);
     if (errMsg) {
         console.error(`Validation error: ${errMsg}`);
         return;
     }
 
-    const message = ClientPayload.create(clientPayloadObject);
-    const buffer = ClientPayload.encode(message).finish();
+    const message = protobufMessageTypes.ClientPayload.create(clientPayloadObject);
+    const buffer = protobufMessageTypes.ClientPayload.encode(message).finish();
 
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(buffer);
-
-        const clientLogs = document.getElementById('clientLogs');
-        const codeBlock = document.createElement('code');
-        codeBlock.className = 'json';
-        codeBlock.textContent = JSON.stringify(message, null, 2);
-
-        clientLogs.insertBefore(codeBlock, clientLogs.firstChild);
-        hljs.highlightBlock(codeBlock);
+        displayClientLog(message);
     } else {
         console.warn('WebSocket is not open. Cannot send data.');
     }
 }
 
-document.getElementById('commandType').addEventListener('change', async function() {
-    displayCommandInputFields();
-});
+function displayClientLog(data) {
+    const clientLogs = document.getElementById('clientLogs');
+    const codeBlock = document.createElement('code');
+    codeBlock.className = 'json';
+    codeBlock.textContent = JSON.stringify(data, null, 2);
 
-document.getElementById('commandType').addEventListener('change', async function() {
-    displayCommandInputFields();
-});
+    clientLogs.insertBefore(codeBlock, clientLogs.firstChild);
+    hljs.highlightBlock(codeBlock);
+}
+
+document.getElementById('commandType').addEventListener('change', displayCommandInputFields);
 
 async function init() {
     await loadProto();
@@ -159,3 +146,4 @@ async function init() {
 }
 
 init();
+

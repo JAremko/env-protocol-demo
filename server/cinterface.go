@@ -9,20 +9,22 @@ import (
 	"log"
 )
 
-// Constants
+// Define constants related to the pipes and data transfer
 const (
-	PIPE_NAME_TO_C   = "/tmp/toC"
-	PIPE_NAME_FROM_C = "/tmp/fromC"
-	MaxPayloadSize   = 100024
+	PIPE_NAME_TO_C   = "/tmp/toC"          // Path to the named pipe for sending data to C
+	PIPE_NAME_FROM_C = "/tmp/fromC"        // Path to the named pipe for receiving data from C
+	MaxPayloadSize   = 100024              // Maximum size of the data payload
 )
 
-var pipeToC *os.File
-var pipeFromC *os.File
+var pipeToC *os.File    // File handler for sending data to C
+var pipeFromC *os.File  // File handler for receiving data from C
 
+// initPipes initializes the named pipes for communication.
 func initPipes() {
 	var err error
 	log.Println("[Go] Initializing pipes...")
 
+	// Loop until successfully opening the receive pipe from C
 	for {
 		log.Printf("[Go] Attempting to open %s...", PIPE_NAME_FROM_C)
 		pipeFromC, err = os.OpenFile(PIPE_NAME_FROM_C, os.O_RDONLY, os.ModeNamedPipe)
@@ -35,6 +37,7 @@ func initPipes() {
 		time.Sleep(1 * time.Second)
 	}
 
+	// Loop until successfully opening the send pipe to C
 	for {
 		log.Printf("[Go] Attempting to open %s...", PIPE_NAME_TO_C)
 		pipeToC, err = os.OpenFile(PIPE_NAME_TO_C, os.O_WRONLY, os.ModeNamedPipe)
@@ -48,12 +51,13 @@ func initPipes() {
 	}
 }
 
-var readBuffer = make([]byte, 0, MaxPayloadSize)
+var readBuffer = make([]byte, 0, MaxPayloadSize) // Buffer for accumulating received data
 
+// ReceivePacketFromC reads a packet from C over the named pipe
 func ReceivePacketFromC() ([]byte, error) {
-	// Small buffer for reading.
-	tmpBuf := make([]byte, 256)
+	tmpBuf := make([]byte, 256) // Temporary buffer for reading
 
+	// Keep reading from the named pipe
 	for {
 		n, err := pipeFromC.Read(tmpBuf)
 		if err != nil {
@@ -62,13 +66,13 @@ func ReceivePacketFromC() ([]byte, error) {
 			return nil, err
 		}
 
-		// Append to our readBuffer
+		// Append the read data to the readBuffer
 		readBuffer = append(readBuffer, tmpBuf[:n]...)
 
-		for { // Inner loop to process multiple packets within the same readBuffer
-			// Check for delimiter
+		// Process packets within the readBuffer
+		for {
+			// Check if we have a packet delimiter (0 byte)
 			if idx := bytes.IndexByte(readBuffer, 0); idx != -1 {
-				// Split the buffer at the delimiter
 				packetData := readBuffer[:idx]
 				readBuffer = readBuffer[idx+1:]
 
@@ -81,7 +85,6 @@ func ReceivePacketFromC() ([]byte, error) {
 				return decodedBuffer, nil
 
 			} else {
-				// No more delimiters found in the current readBuffer
 				break
 			}
 		}
@@ -90,6 +93,7 @@ func ReceivePacketFromC() ([]byte, error) {
 	return nil, fmt.Errorf("[Go] Unreachable code")
 }
 
+// SendPacketToC sends a packet to C over the named pipe
 func SendPacketToC(data *[]byte) error {
 	cobsBuffer := Encode(*data)
 
@@ -108,7 +112,7 @@ func SendPacketToC(data *[]byte) error {
 		}
 	}
 
-	// Write the delimiter
+	// Write a delimiter to signify the end of the packet
 	_, err = pipeToC.Write([]byte{0})
 	if err != nil {
 		return err
@@ -117,27 +121,29 @@ func SendPacketToC(data *[]byte) error {
 	return nil
 }
 
+// closePipes closes the opened pipes.
 func closePipes() {
 	pipeToC.Close()
 	pipeFromC.Close()
 }
 
-// Encoder encodes and decodes byte slices
+// Encoder interface defines methods for encoding and decoding byte slices
 type Encoder interface {
 	Encode(src []byte) []byte
 	Decode(src []byte) ([]byte, error)
 }
 
-// ErrCorrupt indicates the input was corrupt
+// ErrCorrupt is an error indicating corrupted input during decoding
 var ErrCorrupt = errors.New("[Go] Cobs: corrupt input")
 
 type encoder int
 
-// New returns a codec for COBS encoding/decoding
+// New creates and returns a new COBS encoder/decoder
 func New() Encoder {
 	return encoder(0)
 }
 
+// Encode method implements the COBS encoding
 func (encoder) Encode(src []byte) (dst []byte) {
 
 	// guess at how much extra space we need
@@ -177,6 +183,7 @@ func (encoder) Encode(src []byte) (dst []byte) {
 	return dst
 }
 
+// Decode method decodes a COBS-encoded byte slice
 func (encoder) Decode(src []byte) (dst []byte, err error) {
 
 	dst = make([]byte, 0, len(src))
@@ -208,8 +215,8 @@ func (encoder) Decode(src []byte) (dst []byte, err error) {
 	return dst[0 : len(dst)-1], nil // trim phantom zero
 }
 
-// Encode encodes a byte slice with COBS
+// Encode is a convenience function for COBS encoding
 func Encode(src []byte) []byte { return encoder(0).Encode(src) }
 
-// Decode decodes a COBS-encoded byte slice
+// Decode is a convenience function for decoding COBS-encoded byte slice
 func Decode(src []byte) ([]byte, error) { return encoder(0).Decode(src) }

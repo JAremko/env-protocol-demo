@@ -10,13 +10,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// upgrader is used to upgrade HTTP connections to WebSocket connections.
+// Here, we've specified that any origin is allowed (for demonstration purposes).
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
 
+// logPb logs protobuf messages after converting them to JSON format.
 func logPb(message string, pb proto.Message) {
+	// Convert protobuf message to JSON string.
 	marshaler := jsonpb.Marshaler{EmitDefaults: true}
 	jsonStr, err := marshaler.MarshalToString(pb)
 	if err != nil {
@@ -26,6 +30,7 @@ func logPb(message string, pb proto.Message) {
 	log.Printf("[Go] %s: %s", message, jsonStr)
 }
 
+// handleReadConnection continuously reads messages from the WebSocket connection.
 func handleReadConnection(conn *websocket.Conn) {
 	for {
 		messageType, p, err := conn.ReadMessage()
@@ -33,14 +38,18 @@ func handleReadConnection(conn *websocket.Conn) {
 			log.Println("[Go] Read error:", err)
 			return
 		}
+		// Handle binary messages specifically.
 		if messageType == websocket.BinaryMessage {
 			handleBinaryMessage(conn, p)
 		}
 	}
 }
 
+// handleBinaryMessage processes binary messages received over WebSocket.
 func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 	clientPayload := &dp.ClientPayload{}
+
+	// Unmarshal the received binary payload into a ClientPayload protobuf message.
 	if err := proto.Unmarshal(p, clientPayload); err != nil {
 		log.Println("Error unmarshaling ProtoBuf to ClientPayload:", err)
 		return
@@ -48,20 +57,20 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 
 	logPb("Received ClientPayload", clientPayload)
 
-	// Send the payload to the C server
+	// Send the received payload to the C server.
 	if err := SendPacketToC(&p); err != nil {
 		log.Println("Error sending packet to C:", err)
 		return
 	}
 
-	// Wait for the response from C server
+	// Await a response from the C server.
 	cResponse, err := ReceivePacketFromC()
 	if err != nil {
 		log.Println("[Go] Error receiving response from C:", err)
 		return
 	}
 
-	// Unmarshal the C response as HostPayload and log it
+	// Unmarshal the response from the C server into a HostPayload protobuf message.
 	cResponsePayload := &dp.HostPayload{}
 	if err := proto.Unmarshal(cResponse, cResponsePayload); err != nil {
 		log.Println("[Go] Error unmarshaling C pipe response to HostPayload:", err)
@@ -69,18 +78,20 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 	}
 	logPb("Received C pipe Payload", cResponsePayload)
 
-	// Directly send the C response to the WebSocket client
+	// Send the received response from the C server directly to the WebSocket client.
 	if err := conn.WriteMessage(websocket.BinaryMessage, cResponse); err != nil {
 		log.Println("Write error:", err)
 	}
 }
 
+// handler is the main HTTP handler that upgrades HTTP connections to WebSocket connections.
 func handler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	// Make sure to close the WebSocket connection when done.
 	defer conn.Close()
 
 	handleReadConnection(conn)
@@ -88,9 +99,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	log.Println("[Go] Starting")
+
+	// Initialize communication pipes.
 	initPipes();
+
 	log.Println("[Go] Setting up handlers")
+
+	// Register the WebSocket handler.
 	http.HandleFunc("/", handler)
+
 	log.Println("[Go] Handling WebSocket...")
+
+	// Start the HTTP server on port 8085.
 	log.Fatal(http.ListenAndServe(":8085", nil))
 }
