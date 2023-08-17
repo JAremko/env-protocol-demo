@@ -42,15 +42,15 @@ func handleReadConnection(conn *websocket.Conn) {
 func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 	clientPayload := &dp.ClientPayload{}
 	if err := proto.Unmarshal(p, clientPayload); err != nil {
-		log.Println("[Go] Error unmarshaling ProtoBuf to ClientPayload:", err)
+		log.Println("Error unmarshaling ProtoBuf to ClientPayload:", err)
 		return
 	}
 
-	logPb("[Go] Received ClientPayload", clientPayload)
+	logPb("Received ClientPayload", clientPayload)
 
 	// Send the payload to the C server
 	if err := SendPacketToC(&p); err != nil {
-		log.Println("[Go] Error sending packet to C:", err)
+		log.Println("Error sending packet to C:", err)
 		return
 	}
 
@@ -61,9 +61,17 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 		return
 	}
 
+	// Unmarshal the C response as ClientPayload and log it
+	cResponsePayload := &dp.ClientPayload{}
+	if err := proto.Unmarshal(cResponse, cResponsePayload); err != nil {
+		log.Println("[Go] Error unmarshaling C pipe response to ClientPayload:", err)
+		return
+	}
+	logPb("Received C pipe Payload", cResponsePayload)
+
 	// Directly send the C response to the WebSocket client
 	if err := conn.WriteMessage(websocket.BinaryMessage, cResponse); err != nil {
-		log.Println("[Go] Write error:", err)
+		log.Println("Write error:", err)
 	}
 }
 
