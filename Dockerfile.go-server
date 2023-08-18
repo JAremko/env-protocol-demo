@@ -2,11 +2,15 @@
 FROM golang:latest as go-builder
 
 # Install the protobuf compiler
-RUN apt-get update && apt-get -y install protobuf-compiler
+RUN apt-get update && apt-get -y install curl protobuf-compiler
 
 # Install Go protobuf plugin
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+# Install buf tool using the official installation method
+RUN curl -sSL "https://github.com/bufbuild/buf/releases/download/v1.26.1/buf-Linux-x86_64" -o /usr/local/bin/buf && \
+    chmod +x /usr/local/bin/buf
 
 # Add Go binaries to PATH
 ENV PATH=$PATH:/go/bin
@@ -17,10 +21,8 @@ WORKDIR /env-protocol-demo
 # Initialize a Go module
 RUN go mod init github.com/JAremko/env-protocol-demo
 
-# Copy the proto file and server code into the Docker image
-COPY demo_protocol.proto .
-COPY server/main.go .
-COPY server/cinterface.go .
+# Install buf tool
+RUN go get github.com/bufbuild/buf/cmd/buf
 
 # Download all dependencies
 RUN go get github.com/gorilla/websocket
@@ -29,10 +31,19 @@ RUN go get google.golang.org/grpc
 RUN go get google.golang.org/grpc/codes
 RUN go get google.golang.org/grpc/status
 RUN go get github.com/golang/protobuf/jsonpb
+RUN go get github.com/bufbuild/protovalidate-go
 
-# Compile the protobuf files
-RUN mkdir -p demo_protocol && \
-    protoc --go_out=./demo_protocol --go_opt=paths=source_relative ./demo_protocol.proto
+COPY demo_protocol_validate.proto .
+COPY buf.gen.yaml .
+COPY buf.yaml .
+
+RUN buf mod update
+
+# Compile the protobuf files using buf
+RUN mkdir -p demo_protocol && buf generate
+
+COPY server/main.go .
+COPY server/cinterface.go .
 
 # Build the Go app
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server

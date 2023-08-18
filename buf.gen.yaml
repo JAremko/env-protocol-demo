@@ -1,0 +1,5 @@
+version: v1
+plugins:
+  - name: go
+    out: demo_protocol
+    opt: paths=source_relative

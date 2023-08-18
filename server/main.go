@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/bufbuild/protovalidate-go"
 	dp "github.com/JAremko/env-protocol-demo/demo_protocol"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
@@ -49,10 +50,21 @@ func handleReadConnection(conn *websocket.Conn) {
 func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 	clientPayload := &dp.ClientPayload{}
 
+	v, err := protovalidate.New()
+	if err != nil {
+		log.Println("[Go] failed to initialize validator:", err)
+	}
+
 	// Unmarshal the received binary payload into a ClientPayload protobuf message.
-	if err := proto.Unmarshal(p, clientPayload); err != nil {
-		log.Println("Error unmarshaling ProtoBuf to ClientPayload:", err)
+	if err = proto.Unmarshal(p, clientPayload); err != nil {
+		log.Println("[Go] Error unmarshaling ProtoBuf to ClientPayload:", err)
 		return
+	}
+
+	if err = v.Validate(clientPayload); err != nil {
+		log.Println("[Go] validation failed:", err)
+	} else {
+		log.Println("[Go] validation succeeded")
 	}
 
 	logPb("Received ClientPayload", clientPayload)

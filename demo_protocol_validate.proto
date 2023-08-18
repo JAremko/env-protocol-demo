@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package demo_protocol;
 
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/JAremko/env-protocol-demo/demo_protocol";
+
 message HostPayload {
     HostProfile profile = 1;
     HostDevStatus devStatus = 2;
@@ -69,7 +73,7 @@ message SetColorScheme {
     ColorScheme scheme = 1;
 }
 message SetAirTemp {
-	int32 temperature = 1; //[-100..100] C°
+	int32 temperature = 1 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
 }
 message SetPowderTemp {
     int32 temperature = 1; //[-100..100] C°
