@@ -182,7 +182,7 @@ This section offers step-by-step guidelines on setting up and running the Docker
    ```
 
 2. **Install Docker**:
-   - Use the convenience script to install Docker. But remember, always inspect internet scripts before execution:
+   - Use the convenience script to install Docker:
      ```bash
      curl -fsSL https://get.docker.com -o get-docker.sh
      sudo sh get-docker.sh
@@ -214,6 +214,38 @@ Before running the Docker environment, you must clone the project repository whi
    ```bash
    cd env-protocol-demo
    ```
+When you clone a repository inside WSL (Windows Subsystem for Linux), it resides within the Linux filesystem. However, with WSL2, Microsoft provided a way to access this filesystem directly from Windows.
+
+Here's how you can access your WSL2 filesystem from Windows File Explorer:
+
+1. **Using Windows File Explorer's Address Bar**:
+
+   - Open Windows File Explorer.
+   - In the address bar at the top, type `\\wsl$` and press Enter.
+   - You should see a list of your installed WSL distributions.
+   - Open your desired distribution (e.g., `Ubuntu`).
+   - Navigate through the Linux filesystem to find your cloned repository.
+
+2. **Directly Accessing a Directory**:
+
+   If you know where your repository is located, you can directly input the path into File Explorer. For example, if you cloned your repository into the home directory of the `Ubuntu` distribution, you can use the address:
+
+   ```
+   \\wsl$\Ubuntu\home\YOUR_USERNAME\env-protocol-demo
+   ```
+
+Replace `YOUR_USERNAME` with your Linux username.
+
+3. **Using the Terminal**:
+
+   You can also quickly open the directory in File Explorer directly from the WSL terminal:
+
+   ```bash
+   explorer.exe .
+   ```
+
+   Run this command from within the directory you wish to open. For example, if you're in the directory of your cloned repository, this command will open that directory in File Explorer.
+
 
 ## Running the Docker Environment
 
