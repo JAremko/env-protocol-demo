@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/stat.h>
+
 #include "cobs.h"
 #include "demo_protocol.pb.h"
 #include "pb_decode.h"
@@ -165,19 +167,24 @@ int main() {
     setbuf(stdout, NULL);
     setbuf(stderr, NULL);
 
-    // Delete any existing named pipes
-    unlink(PIPE_NAME_TO_C);
-    unlink(PIPE_NAME_FROM_C);
+    struct stat buffer;  // To use with stat()
 
-    printf("[C] Creating pipes\n");
-    // Create new named pipes
-    if (mkfifo(PIPE_NAME_TO_C, 0666) < 0) {
-        perror("[C] Error creating PIPE_NAME_TO_C");
-        exit(1);
+    // Create named pipe PIPE_NAME_TO_C if it doesn't exist
+    if (stat(PIPE_NAME_TO_C, &buffer) != 0) {
+        printf("[C] Creating %s pipe\n", PIPE_NAME_TO_C);
+        if (mkfifo(PIPE_NAME_TO_C, 0666) < 0) {
+            perror("[C] Error creating PIPE_NAME_TO_C");
+            exit(1);
+        }
     }
-    if (mkfifo(PIPE_NAME_FROM_C, 0666) < 0) {
-        perror("[C] Error creating PIPE_NAME_FROM_C");
-        exit(1);
+
+    // Create named pipe PIPE_NAME_FROM_C if it doesn't exist
+    if (stat(PIPE_NAME_FROM_C, &buffer) != 0) {
+        printf("[C] Creating %s pipe\n", PIPE_NAME_FROM_C);
+        if (mkfifo(PIPE_NAME_FROM_C, 0666) < 0) {
+            perror("[C] Error creating PIPE_NAME_FROM_C");
+            exit(1);
+        }
     }
 
     printf("[C] Starting handler thread\n");
