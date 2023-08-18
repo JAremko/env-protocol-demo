@@ -117,6 +117,17 @@ bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, dem
         case demo_protocol_Command_setZoom_tag:
         case demo_protocol_Command_setPallette_tag:
         case demo_protocol_Command_setAirTC_tag:
+        case demo_protocol_Command_setAgc_tag:
+        case demo_protocol_Command_setDst_tag:
+        case demo_protocol_Command_setHoldoff_tag:
+        case demo_protocol_Command_setZeroing_tag:
+        case demo_protocol_Command_setMagOffset_tag:
+        case demo_protocol_Command_setAirHum_tag:
+        case demo_protocol_Command_setAirPress_tag:
+        case demo_protocol_Command_setPowderTemp_tag:
+        case demo_protocol_Command_setWind_tag:
+        case demo_protocol_Command_buttonPress_tag:
+        case demo_protocol_Command_cmdTrigger_tag:
             is_known_command = true;
             break;
         default:

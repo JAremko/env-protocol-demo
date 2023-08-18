@@ -4,12 +4,15 @@ const protobufMessageTypes = {
     SetZoomLevel: null,
     SetColorScheme: null,
     SetAirTemp: null,
+    SetDistance: null,
+    SetAgcMode: null,
     Command: null
 };
 
 const protobufEnums = {
     Zoom: null,
-    ColorScheme: null
+    ColorScheme: null,
+    AGCMode: null
 };
 
 let ws;
@@ -29,9 +32,16 @@ async function loadProto() {
     }
 
     getCommandMappings = () => ({
-        setZoom: data => ({ setZoom: protobufMessageTypes.SetZoomLevel.create({ zoomLevel: protobufEnums.Zoom.values[data.zoomLevel] }) }),
-        setPallette: data => ({ setPallette: protobufMessageTypes.SetColorScheme.create({ scheme: protobufEnums.ColorScheme.values[data.scheme] }) }),
-        setAirTemp: data => ({ setAirTC: protobufMessageTypes.SetAirTemp.create({ temperature: data.temperature }) }),
+        setZoom: data =>
+            ({ setZoom: protobufMessageTypes.SetZoomLevel.create({ zoomLevel: protobufEnums.Zoom.values[data.zoomLevel] }) }),
+        setPallette: data =>
+            ({ setPallette: protobufMessageTypes.SetColorScheme.create({ scheme: protobufEnums.ColorScheme.values[data.scheme] }) }),
+        setAirTemp: data =>
+            ({ setAirTC: protobufMessageTypes.SetAirTemp.create({ temperature: data.temperature }) }),
+        setDst: data =>
+            ({ setDst: protobufMessageTypes.SetDistance.create({ distance: data.distance }) }),
+        setAgc: data =>
+            ({ setAgc: protobufMessageTypes.SetAgcMode.create({ mode: protobufEnums.AGCMode.values[data.agcMode] })}),
         invalid: () => ({})
     });
 }
@@ -87,6 +97,12 @@ function displayCommandInputFields() {
             break;
         case 'setAirTemp':
             component = new AirTempComponent();
+            break;
+        case 'setDst':
+            component = new SetDistanceComponent();
+            break;
+        case 'setAgc':
+            component = new SetAgcModeComponent();
             break;
         case 'invalid':
             component = new InvalidDataComponent();

@@ -94,7 +94,7 @@ message SetDistance {
 	int32 distance = 1; //deciMeter
 }
 message SetAgcMode {
-	AGC_Mode mode = 1;
+	AGCMode mode = 1;
 }
 message SetCompassOffset {
 	int32 offset = 1;  //[-360..360] °
@@ -139,7 +139,7 @@ enum ColorScheme {
     WHITE_HOT = 3;
 }
 
-enum AGC_Mode {
+enum AGCMode {
 	UNKNOWN_AGC_MODE = 0;
 	AUTO_1 = 1;
 	AUTO_2 = 2;
