@@ -132,68 +132,105 @@ This project integrates three distinct technologies: a C server that processes P
 
 # Usage <a name="usage"></a>
 
-This section provides detailed instructions on how to set up and run the provided Docker environment on both Windows and Linux. This is intended for people new to Docker.
+This section offers step-by-step guidelines on setting up and running the Docker environment on Windows (with WSL2) and Linux (Ubuntu).
 
 ## Prerequisites
 
-- Ensure you have a working internet connection.
-- If you already have Docker installed, you can skip the installation step for your respective OS.
+- A stable internet connection.
+- Git installed on your system to clone the repository.
 
-## Windows Installation
+## Windows (with WSL2) Installation
 
-1. **Install Docker Desktop for Windows**:
-   - Download Docker Desktop for Windows from [Docker Hub](https://hub.docker.com/editions/community/docker-ce-desktop-windows).
-   - Follow the installation instructions. During installation, ensure that you choose to use Linux containers (this is the default).
-   - Once installed, start Docker Desktop from the start menu. You'll see an icon in the system tray indicating that Docker is running.
+### Docker Desktop
 
-2. **Enable WSL 2 (Windows Subsystem for Linux 2)**:
-   - Ensure your version of Windows supports WSL 2 and that it's set as your default WSL version.
-   - If needed, follow [Microsoft's WSL 2 installation guide](https://docs.microsoft.com/en-us/windows/wsl/install).
+### Windows Subsystem for Linux 2 (WSL 2)
 
-## Linux Installation
+1. **Ensure your Windows version supports WSL 2 and is set as the default**:
+   - Check Windows support and set up following the [Microsoft WSL 2 installation guide](https://docs.microsoft.com/en-us/windows/wsl/install).
 
-1. **Update your local repositories**:
-   ```
+2. **Install Docker Desktop for Windows**:
+   - Download from [Docker Hub](https://hub.docker.com/editions/community/docker-ce-desktop-windows).
+   - Follow the on-screen installation instructions. Opt for Linux containers when prompted (this should be the default choice).
+   - After installation, start Docker Desktop. An icon should appear in your system tray, indicating Docker is active.
+      1. Open Docker Desktop.
+      2. Navigate to `Settings` > `Resources` > `WSL INTEGRATION`.
+      3. Ensure the `Enable integration with my default WSL distro` option is checked.
+      4. Also, make sure your specific WSL 2 distribution (e.g., `Ubuntu`) is selected.
+      5. Click `Apply & Restart`.
+      
+      For more details, refer to the [official Docker documentation on WSL2 integration](https://docs.docker.com/go/wsl2/).
+
+3. **Starting Ubuntu WSL 2 Distribution**:
+   - Open your Windows command prompt or PowerShell and enter:
+     ```bash
+     wsl -d Ubuntu
+     ```
+
+4. **Installing docker-compose in Ubuntu (WSL 2)**:
+   - Once inside your Ubuntu distribution, you can install `docker-compose`:
+     ```bash
+     curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose
+     sudo mv docker-compose /usr/local/bin/docker-compose
+     sudo chmod +x /usr/local/bin/docker-compose
+     ```
+
+## Linux (Ubuntu) Installation
+
+1. **Refresh your repositories**:
+   ```bash
    sudo apt-get update
    ```
 
 2. **Install Docker**:
-   - Install Docker using the convenience script (note: always inspect scripts from the internet before running them):
-     ```
+   - Use the convenience script to install Docker. But remember, always inspect internet scripts before execution:
+     ```bash
      curl -fsSL https://get.docker.com -o get-docker.sh
      sudo sh get-docker.sh
      ```
 
-3. **Add your user to the Docker group** (this allows you to run Docker commands without `sudo`):
-   ```
+3. **Add your user to the Docker group** (this lets you execute Docker commands without `sudo`):
+   ```bash
    sudo usermod -aG docker ${USER}
    ```
-   - Log out and log back in for the changes to take effect.
+   - For the change to take effect, log out and back in.
 
-4. **Install Docker Compose**:
-   ```
+4. Use [built-in compose](https://docs.docker.com/compose/migrate/) or
+   **Install Docker Compose**:
+   ```bash
    sudo apt-get install docker-compose
+   ```
+  
+## Cloning the Repository
+
+Before running the Docker environment, you must clone the project repository which contains the required `docker-compose.yml` file.
+
+1. **Clone the Repository**:
+   - Open your terminal or `wsl -d Ubuntu` (for Windows users) and run:
+     ```bash
+     git clone https://github.com/JAremko/env-protocol-demo.git
+     ```
+
+2. **Navigate to the Project Directory**:
+   ```bash
+   cd env-protocol-demo
    ```
 
 ## Running the Docker Environment
 
-1. **Navigate to your project directory**:
-   - For Windows users using WSL, navigate to your project directory inside your WSL terminal.
-   - For Linux users, open a terminal and navigate to your project directory.
+1. **Ensure you are in your project directory**:
+   - If you followed the previous steps, you should already be inside the `env-protocol-demo` directory. If not, navigate to it.
 
-2. **Build and start the Docker services**:
-   ```
+2. **Build and activate the Docker services**:
+   ```bash
    docker-compose up --build
    ```
+   This command uses the `docker-compose.yml` file to construct required images and initiate related containers.
 
-   - This command will read the `docker-compose.yml` file, build the necessary images, and start the associated containers.
+3. **Client access**:
+   - Use any web browser and go to `http://localhost:8086` to see the client UI.
 
-3. **Access the client**:
-   - Open a web browser and navigate to `http://localhost:8086` to access the client interface.
-
-4. **Shutdown the Docker environment** (when done):
-   ```
+4. **Shutting down the Docker setup** (when required):
+   ```bash
    docker-compose down -v
    ```
-
 ---
