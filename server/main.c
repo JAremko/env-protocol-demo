@@ -108,6 +108,9 @@ void handleIncomingBuffer(int pipeToC, int pipeFromC) {
 
 // Handle the decoded client command and prepare a host response
 bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, demo_protocol_HostPayload *host_payload) {
+    // FIXME: When we send invalid data to go side it responds
+    //        with ClientPayload->CommandResponse->StatusError
+    //        we need to handle it properly. @tortorino
     bool is_known_command;
     // Check if the command is one of the known commands
     switch (client_payload->command.which_oneofCommand) {
