@@ -77,7 +77,7 @@ async function loadProto() {
                 direction: data.direction, speed: data.speed
             })
         }),
-        setCompassOffset: data => ({
+        setMagOffset: data => ({
             setMagOffset: protobufMessageTypes.SetCompassOffset.create({
                 offset: data.offset
             })
@@ -89,7 +89,7 @@ async function loadProto() {
         }),
         buttonPress: data => ({
             buttonPress: protobufMessageTypes.ButtonPress.create({
-                buttonPressed: protobufEnums.ButtonEnum.values[data.buttonPressed]
+                buttonPressed: protobufEnums.ButtonEnum.values[data.button]
             })
         }),
         cmdTrigger: data => ({
@@ -163,9 +163,42 @@ function displayCommandInputFields() {
         case 'setAgc':
             component = new SetAgcModeComponent();
             break;
+        case 'setPowderTemp':
+            component = new SetPowderTempComponent();
+            break;
+        case 'setAirHum':
+            component = new SetAirHumidityComponent();
+            break;
+        case 'setAirPress':
+            component = new SetAirPressureComponent();
+            break;
+        case 'setWind':
+            component = new SetWindComponent();
+            break;
+        case 'setHoldoff':
+            component = new SetHoldoffComponent();
+            break;
+        case 'setZeroing':
+            component = new SetZeroingComponent();
+            break;
+        case 'setMagOffset':
+            component = new SetCompassOffsetComponent();
+            break;
+        case 'setAirTC':
+            component = new SetAirTempComponent();
+            break;
+        case 'buttonPress':
+            component = new ButtonPressComponent();
+            break;
+        case 'cmdTrigger':
+            component = new TriggerCmdComponent();
+            break;
         case 'invalid':
             component = new InvalidDataComponent();
             break;
+        default:
+            console.error("Unknown command type:", selectedCommand);
+            return;
     }
 
     if (component) {
