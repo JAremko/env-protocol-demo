@@ -39,6 +39,8 @@ message Command
 		SetWind setWind = 12;
 		ButtonPress buttonPress = 13;
 		TriggerCmd cmdTrigger = 14;
+		GetHostDevStatus getHostDevStatus = 15;
+		GetHostProfile getHostProfile = 16;
 	}
 }
 
@@ -70,6 +72,10 @@ message SetZoomLevel {
 }
 message SetColorScheme {
     ColorScheme scheme = 1;
+}
+message GetHostDevStatus {
+}
+message GetHostProfile {
 }
 message SetAirTemp {
 	int32 temperature = 1; //[-100..100] C°
