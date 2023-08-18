@@ -72,7 +72,7 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 
 	if err = v.Validate(clientPayload); err != nil {
 		log.Println("[Go] validation failed:", err)
-		sendValidationError(conn, err.Error())
+		sendClientValidationError(conn, err.Error())
 		return
 	} else {
 		log.Println("[Go] validation succeeded")
@@ -82,7 +82,7 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 
 	// Send the received payload to the C server.
 	if err := SendPacketToC(&p); err != nil {
-		log.Println("Error sending packet to C:", err)
+		log.Println("[Go] Error sending packet to C:", err)
 		return
 	}
 
@@ -99,16 +99,24 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 		log.Println("[Go] Error unmarshaling C pipe response to HostPayload:", err)
 		return
 	}
+
+	// Validate the C server's response.
+	if err = v.Validate(cResponsePayload); err != nil {
+		log.Println("[Go] C server response validation failed:", err)
+		sendHostValidationError(conn, err.Error())
+		return
+	}
+
 	logPb("Received C pipe Payload", cResponsePayload)
 
 	// Send the received response from the C server directly to the WebSocket client.
 	if err := conn.WriteMessage(websocket.BinaryMessage, cResponse); err != nil {
-		log.Println("Write error:", err)
+		log.Println("[Go] Write error:", err)
 	}
 }
 
-// sendValidationError sends a validation error response to the WebSocket client.
-func sendValidationError(conn *websocket.Conn, errMsg string) {
+// sendClientValidationError sends a validation error response to the WebSocket client for client payload validation failure.
+func sendClientValidationError(conn *websocket.Conn, errMsg string) {
 	response := &dp.HostPayload{
 		Response: &dp.CommandResponse{
 			OneofCommandResponse: &dp.CommandResponse_StatusErr{
@@ -127,7 +135,32 @@ func sendValidationError(conn *websocket.Conn, errMsg string) {
 	}
 
 	if err := conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
-		log.Println("Write error:", err)
+		log.Println("[Go] Write error:", err)
+	}
+}
+
+// sendHostValidationError sends a validation error response to the C server for host payload validation failure.
+func sendHostValidationError(conn *websocket.Conn, errMsg string) {
+	response := &dp.ClientPayload{
+		Response: &dp.CommandResponse{
+			OneofCommandResponse: &dp.CommandResponse_StatusErr{
+				StatusErr: &dp.StatusError{
+					Code: dp.ErrorStatusCode_INVALID_DATA,
+					Text: errMsg,
+				},
+			},
+		},
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Println("[Go] Error marshaling host validation error response:", err)
+		return
+	}
+
+	err = SendPacketToC(&data)
+	if err != nil {
+		log.Println("[Go] Error sending packet to C:", err)
 	}
 }
 

@@ -16,6 +16,7 @@ message ClientPayload {
     ClientProfile profile = 1;
     ClientDevStatus devStatus = 2;
     Command command = 3;
+    CommandResponse response = 4;
 }
 
 message CommandResponse {
@@ -66,7 +67,6 @@ enum ErrorStatusCode {
     FAILURE = 1;
 	INVALID_DATA = 2;
 }
-
 
 message SetZoomLevel {
     Zoom zoomLevel = 1;
