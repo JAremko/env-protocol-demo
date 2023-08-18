@@ -234,7 +234,7 @@ Here's how you can access your WSL2 filesystem from Windows File Explorer:
    \\wsl$\Ubuntu\home\YOUR_USERNAME\env-protocol-demo
    ```
 
-Replace `YOUR_USERNAME` with your Linux username.
+   Replace `YOUR_USERNAME` with your Linux username.
 
 3. **Using the Terminal**:
 
