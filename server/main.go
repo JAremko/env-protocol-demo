@@ -72,6 +72,8 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 
 	if err = v.Validate(clientPayload); err != nil {
 		log.Println("[Go] validation failed:", err)
+		sendValidationError(conn, err.Error())
+		return
 	} else {
 		log.Println("[Go] validation succeeded")
 	}
@@ -101,6 +103,30 @@ func handleBinaryMessage(conn *websocket.Conn, p []byte) {
 
 	// Send the received response from the C server directly to the WebSocket client.
 	if err := conn.WriteMessage(websocket.BinaryMessage, cResponse); err != nil {
+		log.Println("Write error:", err)
+	}
+}
+
+// sendValidationError sends a validation error response to the WebSocket client.
+func sendValidationError(conn *websocket.Conn, errMsg string) {
+	response := &dp.HostPayload{
+		Response: &dp.CommandResponse{
+			OneofCommandResponse: &dp.CommandResponse_StatusErr{
+				StatusErr: &dp.StatusError{
+					Code: dp.ErrorStatusCode_INVALID_DATA,
+					Text: errMsg,
+				},
+			},
+		},
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Println("[Go] Error marshaling validation error response:", err)
+		return
+	}
+
+	if err := conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
 		log.Println("Write error:", err)
 	}
 }

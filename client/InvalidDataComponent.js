@@ -1,7 +1,7 @@
 class InvalidDataComponent extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
-            <button class="button is-danger">Send!</button>
+            <button class="button is-danger">Send broken payload!</button>
         `;
 
         this.button = this.querySelector('.button');

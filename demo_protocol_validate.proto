@@ -53,6 +53,7 @@ message StatusOk
 message StatusError
 {
 	ErrorStatusCode code = 1;
+	string text = 2;
 }
 
 enum OkStatusCode {
@@ -63,6 +64,7 @@ enum OkStatusCode {
 enum ErrorStatusCode {
 	UNKNOWN_ERROR_STATUS = 0;
     FAILURE = 1;
+	INVALID_DATA = 2;
 }
 
 
