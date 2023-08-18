@@ -11,6 +11,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Initialize the validator as a global variable.
+var v *protovalidate.Validator
+
+func ValidatorInit() {
+	var err error
+	v, err = protovalidate.New()
+	if err != nil {
+		log.Fatal("[Go] failed to initialize validator:", err)
+	}
+}
+
 // upgrader is used to upgrade HTTP connections to WebSocket connections.
 // Here, we've specified that any origin is allowed (for demonstration purposes).
 var upgrader = websocket.Upgrader{
@@ -48,12 +59,10 @@ func handleReadConnection(conn *websocket.Conn) {
 
 // handleBinaryMessage processes binary messages received over WebSocket.
 func handleBinaryMessage(conn *websocket.Conn, p []byte) {
+
 	clientPayload := &dp.ClientPayload{}
 
-	v, err := protovalidate.New()
-	if err != nil {
-		log.Println("[Go] failed to initialize validator:", err)
-	}
+	var err error
 
 	// Unmarshal the received binary payload into a ClientPayload protobuf message.
 	if err = proto.Unmarshal(p, clientPayload); err != nil {
@@ -112,8 +121,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	log.Println("[Go] Starting")
 
+	// Initialize protobuf validator
+	ValidatorInit()
+
 	// Initialize communication pipes.
-	initPipes();
+	initPipes()
 
 	log.Println("[Go] Setting up handlers")
 
