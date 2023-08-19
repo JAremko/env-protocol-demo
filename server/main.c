@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "cobs.h"
 #include "demo_protocol.pb.h"
@@ -23,6 +24,33 @@ ssize_t readUntilDelimiter(int fd, uint8_t *buffer, size_t max_size);
 void printBuffer(const char *message, uint8_t *buffer, size_t size);
 bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, demo_protocol_HostPayload *host_payload);
 void handleIncomingBuffer(int pipeToC, int pipeFromC);
+
+// Generate a random integer between min and max (inclusive)
+int randomInt(int min, int max) {
+    return (rand() % (max - min + 1)) + min;
+}
+
+// Generate a random HostDevStatus
+void generateRandomHostDevStatus(demo_protocol_HostDevStatus *status) {
+    status->charge = randomInt(0, 100);
+    status->zoom = randomInt(1, 10);
+    status->airTemp = randomInt(-100, 100);
+    status->airHum = randomInt(0, 100);
+    status->airPress = randomInt(3000, 12000);
+    status->powderTemp = randomInt(-100, 100);
+    status->windDir = randomInt(0, 359);
+    status->windSpeed = randomInt(0, 200);
+    status->pitch = randomInt(-90, 90);
+    status->cant = randomInt(-90, 90);
+    status->distance = randomInt(0, 10000);
+    status->currentProfile = randomInt(0, 10);
+}
+
+// Generate a random HostProfile
+void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
+    profile->zero_x = randomInt(-100, 100);
+    profile->zero_y = randomInt(-100, 100);
+}
 
 // Thread function to handle incoming and outgoing commands
 void *handleCommands(void *args) {
@@ -111,9 +139,22 @@ bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, dem
     // FIXME: When we send invalid data to go side it responds
     //        with ClientPayload->CommandResponse->StatusError
     //        we need to handle it properly. @tortorino
-    bool is_known_command;
-    // Check if the command is one of the known commands
+    bool is_known_command = false;
+
     switch (client_payload->command.which_oneofCommand) {
+        case demo_protocol_Command_getHostDevStatus_tag:
+            host_payload->has_devStatus = true;
+            generateRandomHostDevStatus(&host_payload->devStatus);
+            is_known_command = true;
+            break;
+
+        case demo_protocol_Command_getHostProfile_tag:
+            host_payload->has_profile = true;
+            generateRandomHostProfile(&host_payload->profile);
+            is_known_command = true;
+            break;
+
+        // Handle other known commands here
         case demo_protocol_Command_setZoom_tag:
         case demo_protocol_Command_setPallette_tag:
         case demo_protocol_Command_setAirTC_tag:
@@ -128,10 +169,9 @@ bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, dem
         case demo_protocol_Command_setWind_tag:
         case demo_protocol_Command_buttonPress_tag:
         case demo_protocol_Command_cmdTrigger_tag:
-        case demo_protocol_Command_getHostDevStatus_tag:
-        case demo_protocol_Command_getHostProfile_tag:
             is_known_command = true;
             break;
+
         default:
             is_known_command = false;
     }
@@ -148,6 +188,7 @@ bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, dem
 
     return true;
 }
+
 
 // Helper function to print buffer data
 void printBuffer(const char *message, uint8_t *buffer, size_t size) {
@@ -178,6 +219,7 @@ ssize_t readUntilDelimiter(int fd, uint8_t *buffer, size_t max_size) {
 
 // The main function
 int main() {
+    srand(time(NULL));
     printf("[C] Starting\n");
     // Make sure there's no buffering on stdout and stderr to see logs immediately
     setbuf(stdout, NULL);
