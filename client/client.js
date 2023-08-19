@@ -6,7 +6,7 @@ const protobufMessageTypes = {
     SetAirHumidity: null, SetAirPressure: null, SetWind: null,
     SetCompassOffset: null, SetHoldoff: null, ButtonPress: null,
     TriggerCmd: null, SetZeroing: null, HostDevStatus: null,
-    ClientDevStatus: null
+    ClientDevStatus: null, GetHostDevStatus: null, GetHostProfile: null
 };
 
 const protobufEnums = {
@@ -102,6 +102,12 @@ async function loadProto() {
                 x: data.x, y: data.y
             })
         }),
+        getHostDevStatus: () => ({
+            getHostDevStatus: protobufMessageTypes.GetHostDevStatus.create({})
+        }),
+        getHostProfile: () => ({
+            getHostProfile: protobufMessageTypes.GetHostProfile.create({})
+        }),
         invalid: () => ({})
     });
 }
@@ -192,6 +198,13 @@ function displayCommandInputFields() {
             break;
         case 'cmdTrigger':
             component = new TriggerCmdComponent();
+            break;
+
+        case 'getHostDevStatus':
+            component = new GetHostDevStatusComponent();
+            break;
+        case 'getHostProfile':
+            component = new GetHostProfileComponent();
             break;
         case 'invalid':
             component = new InvalidDataComponent();

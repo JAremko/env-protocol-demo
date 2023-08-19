@@ -128,6 +128,8 @@ bool handleDecodedCommand(const demo_protocol_ClientPayload *client_payload, dem
         case demo_protocol_Command_setWind_tag:
         case demo_protocol_Command_buttonPress_tag:
         case demo_protocol_Command_cmdTrigger_tag:
+        case demo_protocol_Command_getHostDevStatus_tag:
+        case demo_protocol_Command_getHostProfile_tag:
             is_known_command = true;
             break;
         default:
