@@ -4,7 +4,6 @@ class SetAirPressureComponent extends HTMLElement {
         this.min = 3000;
         this.max = 12000;
         this.commandType = 'setAirPress';
-        this.iconClass = 'fas fa-tachometer-alt'; // I've chosen a tachometer icon, you can change it if you have a more suitable one.
     }
 
     connectedCallback() {
@@ -32,9 +31,6 @@ class SetAirPressureComponent extends HTMLElement {
                     </div>
                     <div class="control has-icons-left">
                         <input type="number" class="input" id="pressureNumeric" min="${this.min}" max="${this.max * 2}" value="${this.min}">
-                        <span class="icon is-small is-left">
-                          <i class="${this.iconClass}"></i>
-                        </span>
                     </div>
                 </div>
                 <button class="button is-primary">Send Air Pressure</button>

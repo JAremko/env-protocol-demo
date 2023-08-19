@@ -1,43 +1,51 @@
 class SetPowderTempComponent extends HTMLElement {
+    constructor() {
+        super();
+        this.min = -100;
+        this.max = 100;
+        this.commandType = 'setPowderTemp';
+    }
+
     connectedCallback() {
+        this.render();
+        this.slider = this.querySelector('#powderTempSlider');
+        this.numeric = this.querySelector('#powderTempNumeric');
+        this.button = this.querySelector('.button');
+
+        this.slider.addEventListener('input', this.handleSliderInput.bind(this));
+        this.numeric.addEventListener('input', this.handleNumericInput.bind(this));
+        this.button.addEventListener('click', this.sendDataToServer.bind(this));
+    }
+
+    render() {
         this.innerHTML = `
             <div>
                 <div class="field">
                     <label class="label">Set Powder Temperature</label>
                     <div class="control">
                         <div class="level">
-                            <p>-100</p>
-                            <input type="range" id="powderTempSlider" min="-100" max="100" value="0" style="flex-grow: 1;">
-                            <p>100</p>
+                            <p>${this.min}</p>
+                            <input type="range" id="powderTempSlider" min="${this.min}" max="${this.max * 2}" value="0" style="flex-grow: 1;">
+                            <p>${this.max * 2}</p>
                         </div>
                     </div>
                     <div class="control has-icons-left">
-                        <input type="number" class="input" id="powderTempNumeric" min="-100" max="100" value="0">
-                        <span class="icon is-small is-left">
-                          <i class="fas fa-temperature-low"></i>
-                        </span>
+                        <input type="number" class="input" id="powderTempNumeric" min="${this.min}" max="${this.max * 2}" value="0">
                     </div>
                 </div>
-
                 <button class="button is-primary">Send Powder Temperature</button>
             </div>
         `;
+    }
 
-        this.slider = this.querySelector('#powderTempSlider');
-        this.numeric = this.querySelector('#powderTempNumeric');
-        this.button = this.querySelector('.button');
+    handleSliderInput() {
+        this.updateNumericValue(this.slider.value);
+        this.checkValueForErrorColor();
+    }
 
-        this.slider.addEventListener('input', () => {
-            this.updateNumericValue(this.slider.value);
-            this.checkValueForErrorColor();
-        });
-
-        this.numeric.addEventListener('input', () => {
-            this.updateSliderValue(this.numeric.value);
-            this.checkValueForErrorColor();
-        });
-
-        this.button.addEventListener('click', this.sendDataToServer.bind(this));
+    handleNumericInput() {
+        this.updateSliderValue(this.numeric.value);
+        this.checkValueForErrorColor();
     }
 
     updateNumericValue(value) {
@@ -49,7 +57,7 @@ class SetPowderTempComponent extends HTMLElement {
     }
 
     checkValueForErrorColor() {
-        if (parseInt(this.numeric.value, 10) > 100) {
+        if (parseInt(this.numeric.value, 10) > this.max || parseInt(this.numeric.value, 10) < this.min) {
             this.numeric.classList.add('is-danger');
         } else {
             this.numeric.classList.remove('is-danger');
@@ -58,7 +66,7 @@ class SetPowderTempComponent extends HTMLElement {
 
     sendDataToServer() {
         const commandData = {
-            commandType: 'setPowderTemp',
+            commandType: this.commandType,
             temperature: parseInt(this.numeric.value, 10)
         };
         sendCommandToServer(commandData);
