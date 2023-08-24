@@ -84,30 +84,30 @@ message SetAirTemp {
 	int32 temperature = 1 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
 }
 message SetPowderTemp {
-    int32 temperature = 1; //[-100..100] C°
+    int32 temperature = 1 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100]; //[-100..100] C°
 }
 message SetAirHumidity {
-    int32 humidity = 1; //[0..100]%
+    int32 humidity = 1 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100]; //[0..100]%
 }
 message SetAirPressure {
-	int32 pressure = 1; //[3000..12000] decaPascal
+	int32 pressure = 1 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000]; //[3000..12000] decaPascal
 }
 message SetWind {
-	int32 direction = 1; //[0..359] °
-	int32 speed = 2; //[0..200] deciMeter per second
+	int32 direction = 1 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 359]; //[0..359] °
+	int32 speed = 2 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 200]; //[0..200] deciMeter per second
 }
 message SetDistance {
-	int32 distance = 1; //deciMeter
+	int32 distance = 1 [(buf.validate.field).int32.gte = 50, (buf.validate.field).int32.lte = 30000]; //deciMeter
 }
 message SetAgcMode {
 	AGCMode mode = 1;
 }
 message SetCompassOffset {
-	int32 offset = 1;  //[-360..360] °
+	int32 offset = 1 [(buf.validate.field).int32.gte = -360, (buf.validate.field).int32.lte = 360];  //[-360..360] °
 }
 message SetHoldoff{
-	int32 x = 1; //x1000 125 increments [-600000..600000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
-	int32 y = 2; //x1000 125 increments [-600000..600000]
+	int32 x = 1 [(buf.validate.field).int32.gte = -800000, (buf.validate.field).int32.lte = 800000]; //x1000 125 increments [-800000..800000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
+	int32 y = 2 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000]; //x1000 125 increments [-600000..600000]
 }
 message ButtonPress{
 	ButtonEnum buttonPressed = 1;
@@ -116,22 +116,22 @@ message TriggerCmd{
 	CMDDirect cmd = 1;
 }
 message SetZeroing{
-	int32 x = 1; //x1000 125 increments [-600000..600000]
-	int32 y = 2; //x1000 125 increments [-600000..600000]
+	int32 x = 1 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000]; //x1000 125 increments [-600000..600000]
+	int32 y = 2 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000]; //x1000 125 increments [-600000..600000]
 }
 
 message HostDevStatus {
     int32 charge = 1; // Represented as percentage
 	Zoom zoom = 2; // zoom multiplier
-	int32 airTemp = 3; //-100..100 C°
-	int32 airHum = 4;	//0..100%
-	int32 airPress = 5; //3000..12000 decaPascal
-	int32 powderTemp = 6; //-100..100 C°
-	int32 windDir = 7; //0..359 °
-	int32 windSpeed = 8; //0..200 deciMeter per second
-	int32 pitch = 9; //-90..90 °
-	int32 cant = 10; //-90..90 °
-	int32 distance = 11; //deciMeter
+	int32 airTemp = 3 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100]; //-100..100 C°
+	int32 airHum = 4 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];	//0..100%
+	int32 airPress = 5 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000]; //3000..12000 decaPascal
+	int32 powderTemp = 6 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100]; //-100..100 C°
+	int32 windDir = 7 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 359]; //0..359 °
+	int32 windSpeed = 8 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 200]; //0..200 deciMeter per second
+	int32 pitch = 9 [(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90]; //-90..90 °
+	int32 cant = 10 [(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90]; //-90..90 °
+	int32 distance = 11  [(buf.validate.field).int32.gte = 50, (buf.validate.field).int32.lte = 30000]; //deciMeter
 	int32 currentProfile = 12; //profile index
 }
 
@@ -211,64 +211,64 @@ enum TwistDir {
 }
 
 message HostProfile {
-	string profile_name = 1;
-	string cartridge_name = 2;
-	string bullet_name = 3;
-	string short_name_top = 4;
-	string short_name_bot = 5;
-	string user_note = 6;
-	int32 zero_x = 7;
-	int32 zero_y = 8;
-	int32 sc_height = 9;
-	int32 r_twist = 10;
-	int32 c_muzzle_velocity = 11;
-	int32 c_zero_temperature = 12;
-	int32 c_t_coeff = 13;
-	int32 c_zero_distance_idx = 14;
-	int32 c_zero_air_temperature = 15;
-	int32 c_zero_air_pressure = 16;
-	int32 c_zero_air_humidity = 17;
-	int32 c_zero_w_pitch = 18;
-	int32 c_zero_p_temperature = 19;
-	int32 b_diameter = 20;
-	int32 b_weight = 21;
-	int32 b_length = 22;
+	string profile_name = 1  [(buf.validate.field).string.max_len = 50];
+	string cartridge_name = 2 [(buf.validate.field).string.max_len = 50];
+	string bullet_name = 3 [(buf.validate.field).string.max_len = 50];
+	string short_name_top = 4 [(buf.validate.field).string.max_len = 8];
+	string short_name_bot = 5 [(buf.validate.field).string.max_len = 8];
+	string user_note = 6 [(buf.validate.field).string.max_len = 250];
+	int32 zero_x = 7 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000];
+	int32 zero_y = 8 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000];
+	int32 sc_height = 9 [(buf.validate.field).int32.gte = -5000, (buf.validate.field).int32.lte = 5000];
+	int32 r_twist = 10 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 10000];
+	int32 c_muzzle_velocity = 11 [(buf.validate.field).int32.gte = 100, (buf.validate.field).int32.lte = 30000];
+	int32 c_zero_temperature = 12 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
+	int32 c_t_coeff = 13 [(buf.validate.field).int32.gte = 2, (buf.validate.field).int32.lte = 3000];
+	int32 c_zero_distance_idx = 14 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lt = 200];
+	int32 c_zero_air_temperature = 15 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
+	int32 c_zero_air_pressure = 16 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000];
+	int32 c_zero_air_humidity = 17 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];
+	int32 c_zero_w_pitch = 18[(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90];
+	int32 c_zero_p_temperature = 19 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
+	int32 b_diameter = 20 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 65535];
+	int32 b_weight = 21 [(buf.validate.field).int32.gte = 10, (buf.validate.field).int32.lte = 65535];
+	int32 b_length = 22 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 10000];
 	TwistDir twist_dir = 23;
 	GType bc_type = 24;
 	repeated SwPos switches = 25;
-	repeated int32 distances = 26;
+	repeated int32 distances = 26 [(buf.validate.field).int32.gte = 50, (buf.validate.field).int32.lte = 30000];
 	repeated CoefRow coef_rows = 27;
-	string caliber = 28;
-	string device_uuid = 29;
+	string caliber = 28 [(buf.validate.field).string.max_len = 50];
+	string device_uuid = 29 [(buf.validate.field).string.max_len = 50];
 }
 
 message ClientProfile {
 	reserved 1, 2, 3;
 	reserved "profile_name", "cartridge_name", "bullet_name";
-	string short_name_top = 4;
-	string short_name_bot = 5;
-	string user_note = 6;
-	int32 zero_x = 7;
-	int32 zero_y = 8;
-	int32 sc_height = 9;
-	int32 r_twist = 10;
-	int32 c_muzzle_velocity = 11;
-	int32 c_zero_temperature = 12;
-	int32 c_t_coeff = 13;
-	int32 c_zero_distance_idx = 14;
-	int32 c_zero_air_temperature = 15;
-	int32 c_zero_air_pressure = 16;
-	int32 c_zero_air_humidity = 17;
-	int32 c_zero_w_pitch = 18;
-	int32 c_zero_p_temperature = 19;
-	int32 b_diameter = 20;
-	int32 b_weight = 21;
-	int32 b_length = 22;
+	string short_name_top = 4 [(buf.validate.field).string.max_len = 8];
+	string short_name_bot = 5 [(buf.validate.field).string.max_len = 8];
+	string user_note = 6 [(buf.validate.field).string.max_len = 250];
+	int32 zero_x = 7 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000];
+	int32 zero_y = 8 [(buf.validate.field).int32.gte = -600000, (buf.validate.field).int32.lte = 600000];
+	int32 sc_height = 9 [(buf.validate.field).int32.gte = -5000, (buf.validate.field).int32.lte = 5000];
+	int32 r_twist = 10 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 10000];
+	int32 c_muzzle_velocity = 11 [(buf.validate.field).int32.gte = 100, (buf.validate.field).int32.lte = 30000];
+	int32 c_zero_temperature = 12 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
+	int32 c_t_coeff = 13 [(buf.validate.field).int32.gte = 2, (buf.validate.field).int32.lte = 3000];
+	int32 c_zero_distance_idx = 14 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lt = 200];
+	int32 c_zero_air_temperature = 15 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
+	int32 c_zero_air_pressure = 16 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000];
+	int32 c_zero_air_humidity = 17 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];
+	int32 c_zero_w_pitch = 18[(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90];
+	int32 c_zero_p_temperature = 19 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
+	int32 b_diameter = 20 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 65535];
+	int32 b_weight = 21 [(buf.validate.field).int32.gte = 10, (buf.validate.field).int32.lte = 65535];
+	int32 b_length = 22 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 10000];
 	TwistDir twist_dir = 23;
 	GType bc_type = 24;
 	repeated SwPos switches = 25;
-	repeated int32 distances = 26;
+	repeated int32 distances = 26 [(buf.validate.field).int32.gte = 50, (buf.validate.field).int32.lte = 30000];
 	repeated CoefRow coef_rows = 27;
-	string caliber = 28;
-	string device_uuid = 29;
+	string caliber = 28 [(buf.validate.field).string.max_len = 50];
+	string device_uuid = 29 [(buf.validate.field).string.max_len = 50];
 }
