@@ -1,0 +1,2 @@
+C:/src/reticles/env-protocol-demo/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/src/reticles/env-protocol-demo/cmake-build-debug/CMakeFiles/rebuild_cache.dir

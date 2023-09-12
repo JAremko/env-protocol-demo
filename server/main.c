@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <math.h>
 
 #include "cobs.h"
 #include "demo_protocol.pb.h"
@@ -45,11 +46,84 @@ void generateRandomHostDevStatus(demo_protocol_HostDevStatus *status) {
     status->distance = randomInt(0, 10000);
     status->currentProfile = randomInt(0, 10);
 }
-
+static void gen_random_string(char *string, uint16_t len){
+	for (int i = 0; i < len - 1; ++i) {
+		string[i] = randomInt(32, 126);
+	}
+	string[len - 1] = 0;
+}
 // Generate a random HostProfile
 void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
-    profile->zero_x = randomInt(-100, 100);
-    profile->zero_y = randomInt(-100, 100);
+	static char *calibers[10] = {"Winchester", "Lapua", "Remington", "Swiss", "Norma", "NATO", "Valkyre", "Demon", "Hornady", "Kragg"};
+	static char *bullets[10] = {"SMK", "Scenar", "FMJ", "HPBT", "Hybrid", "Juggernaut", "Solid", "API", "Ball", "SPBT"};
+	static char *cartridge[10] = {"Sierra", "Lapua", "SwissP", "Ukrop", "Norma", "Berger", "Sellier&Bellot", "Black Hills", "Hornady", "Desert Tech"};
+
+    profile->zero_x = (randomInt(-1000, 1000) / 4) * 4;
+    profile->zero_y = (randomInt(-10, 10) / 4) * 4;
+	gen_random_string(profile->device_uuid, 33);
+	sprintf(profile->caliber, "%s%d", calibers[randomInt(0, 9)], randomInt(1, 500));
+	
+	sprintf(profile->cartridge_name, "%s %s", cartridge[randomInt(0, 9)], bullets[randomInt(0, 9)]);
+	sprintf(profile->short_name_bot, "%.7s", calibers[randomInt(0, 9)]);
+	sprintf(profile->short_name_top, "%.7s", bullets[randomInt(0, 9)]);
+
+	profile->distances_count = randomInt(10, 199);
+	profile->c_zero_distance_idx = randomInt(0, profile->distances_count-1);
+	for (int i = 0; i < profile->distances_count; ++i){
+		profile->distances[i] = randomInt(25, 2500)*100;
+	}
+	for (int i = 0; i < 4; ++i) {
+		profile->switches[i].distance_from = randomInt(demo_protocol_DType_VALUE, demo_protocol_DType_INDEX);
+		if (profile->switches[i].distance_from == demo_protocol_DType_VALUE){
+			profile->switches[i].distance = randomInt(10, 2500)*100;
+			profile->switches[i].c_idx = 0xff;
+		}
+		else if (profile->switches[i].distance_from == demo_protocol_DType_INDEX){
+			profile->switches[i].distance = 0;
+			profile->switches[i].c_idx = randomInt(0, profile->distances_count-1);
+		}
+		profile->switches[i].reticle_idx = 0;
+		profile->switches[i].zoom = randomInt(1, 4);
+	}
+	profile->c_muzzle_velocity = randomInt(320, 1000)*10;
+	profile->b_diameter = randomInt(100, 500);
+	profile->b_length = randomInt(900, 1500);
+	profile->b_weight = randomInt(55, 400)*10;
+	sprintf(profile->bullet_name, "%s %dgrn", bullets[randomInt(0, 9)], profile->b_weight/10);
+	
+	profile->c_zero_temperature = randomInt(-20, 35);
+	profile->c_t_coeff = randomInt(1, 200);
+	profile->c_zero_w_pitch = randomInt(-10, 10);
+	profile->c_zero_p_temperature = randomInt(-10, 40);
+	profile->c_zero_air_pressure = randomInt(950, 1050);
+	profile->c_zero_air_humidity = randomInt(0, 100);
+	profile->c_zero_air_temperature = randomInt(-20, 30);
+	
+	profile->bc_type = randomInt(demo_protocol_GType_G1, demo_protocol_GType_CUSTOM);
+	if (profile->bc_type == demo_protocol_GType_CUSTOM){
+		profile->coef_rows_count = randomInt(10, 200);
+		for (int i = 0; i < profile->coef_rows_count; ++i) {
+			profile->coef_rows[i].bc_cd = lround((0.0463161* sin(5.0 - (i*5.0/profile->coef_rows_count)) + 0.0175094* cos(5.0 - (i*5.0/profile->coef_rows_count)) + 0.538622)*1000);
+			profile->coef_rows[i].mv = lround((5.0 - (i*5.0/profile->coef_rows_count))*1000);
+		}
+	}
+	else {
+		profile->coef_rows_count = randomInt(1, 5);
+		if (profile->bc_type == demo_protocol_GType_G1){
+			profile->coef_rows[0].bc_cd = randomInt(2000, 7500);
+			profile->coef_rows[0].mv = profile->c_muzzle_velocity;
+		}
+		else {
+			profile->coef_rows[0].bc_cd = randomInt(1000, 4000);
+			profile->coef_rows[0].mv = profile->c_muzzle_velocity;
+		}
+
+		for (int i = 1; i < profile->coef_rows_count; ++i) {
+			profile->coef_rows[i].bc_cd = profile->coef_rows[i-1].bc_cd + profile->coef_rows[i-1].bc_cd * (randomInt(-5,5)/100.0);
+			profile->coef_rows[i].mv = profile->coef_rows[i-1].mv - profile->coef_rows[i-1].mv/profile->coef_rows_count;
+		}
+	}
+	
 }
 
 // Thread function to handle incoming and outgoing commands

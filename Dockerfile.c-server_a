@@ -1,0 +1,53 @@
+# ---- Build Stage ----
+FROM gcc:latest AS build
+
+# Install necessary packages for building
+RUN apt-get update && apt-get install -y git protobuf-compiler python3 python3-venv cmake make
+
+# Create a virtual environment
+RUN python3 -m venv /venv
+
+# Activate virtual environment and install packages
+RUN /venv/bin/pip install protobuf grpcio-tools
+
+# Adjust PATH for our virtual environment for subsequent commands
+ENV PATH="/venv/bin:$PATH"
+
+# Clone nanopb
+RUN git clone https://github.com/nanopb/nanopb.git /nanopb
+
+# Set the working directory for building
+WORKDIR /build
+
+# Copy source files and other assets into the Docker image
+COPY server/main.c .
+COPY server/cobs.c .
+COPY server/cobs.h .
+COPY demo_protocol.proto .
+COPY demo_protocol.options .
+
+# Generate the C source and header files from .proto file
+RUN protoc --plugin=protoc-gen-nanopb=/nanopb/generator/protoc-gen-nanopb \
+    --nanopb_out=. demo_protocol.proto
+
+# Compile C code with pthread support, nanopb and the generated proto code
+RUN gcc -Wall -g3 -Og -Werror \
+         -DPB_FIELD_32BIT=1 \
+         -DPB_ENABLE_MALLOC=1 \
+         -DPB_ENCODE_ARRAYS_UNPACKED=1 \
+         -DPB_VALIDATE_UTF8=1 \
+         -o c_server main.c cobs.c demo_protocol.pb.c \
+    /nanopb/pb_encode.c /nanopb/pb_decode.c /nanopb/pb_common.c \
+    -I/nanopb -lpthread -lm
+
+# ---- Final Stage ----
+#FROM debian:bookworm-slim
+
+# Copy the compiled binary from the build stage
+#COPY --from=build /build/c_server /app/c_server
+
+# Set the working directory for the final stage
+#WORKDIR /app
+
+
+#CMD ["/app/c_server"]

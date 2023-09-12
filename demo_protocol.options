@@ -1,0 +1,11 @@
+demo_protocol.HostProfile.coef_rows max_count:200
+demo_protocol.HostProfile.distances max_count:200
+demo_protocol.HostProfile.switches max_count:4
+demo_protocol.HostProfile.profile_name max_size:200
+demo_protocol.HostProfile.cartridge_name max_size:200
+demo_protocol.HostProfile.bullet_name max_size:200
+demo_protocol.HostProfile.short_name_top max_size:32
+demo_protocol.HostProfile.short_name_bot max_size:32
+demo_protocol.HostProfile.user_note max_size:1024
+demo_protocol.HostProfile.caliber max_size:50
+demo_protocol.HostProfile.device_uuid max_size:50
