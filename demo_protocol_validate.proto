@@ -226,7 +226,7 @@ message HostProfile {
 	int32 c_t_coeff = 13 [(buf.validate.field).int32.gte = 2, (buf.validate.field).int32.lte = 3000];
 	int32 c_zero_distance_idx = 14 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lt = 200];
 	int32 c_zero_air_temperature = 15 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
-	int32 c_zero_air_pressure = 16 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000];
+	int32 c_zero_air_pressure = 16;
 	int32 c_zero_air_humidity = 17 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];
 	int32 c_zero_w_pitch = 18[(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90];
 	int32 c_zero_p_temperature = 19 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
@@ -257,7 +257,7 @@ message ClientProfile {
 	int32 c_t_coeff = 13 [(buf.validate.field).int32.gte = 2, (buf.validate.field).int32.lte = 3000];
 	int32 c_zero_distance_idx = 14 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lt = 200];
 	int32 c_zero_air_temperature = 15 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
-	int32 c_zero_air_pressure = 16 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000];
+	int32 c_zero_air_pressure = 16;
 	int32 c_zero_air_humidity = 17 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];
 	int32 c_zero_w_pitch = 18[(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90];
 	int32 c_zero_p_temperature = 19 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];

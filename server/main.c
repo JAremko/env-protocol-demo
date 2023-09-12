@@ -62,7 +62,7 @@ void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
     profile->zero_y = (randomInt(-10, 10) / 4) * 4;
 	gen_random_string(profile->device_uuid, 33);
 	sprintf(profile->caliber, "%s%d", calibers[randomInt(0, 9)], randomInt(1, 500));
-	
+
 	sprintf(profile->cartridge_name, "%s %s", cartridge[randomInt(0, 9)], bullets[randomInt(0, 9)]);
 	sprintf(profile->short_name_bot, "%.7s", calibers[randomInt(0, 9)]);
 	sprintf(profile->short_name_top, "%.7s", bullets[randomInt(0, 9)]);
@@ -90,7 +90,7 @@ void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
 	profile->b_length = randomInt(900, 1500);
 	profile->b_weight = randomInt(55, 400)*10;
 	sprintf(profile->bullet_name, "%s %dgrn", bullets[randomInt(0, 9)], profile->b_weight/10);
-	
+
 	profile->c_zero_temperature = randomInt(-20, 35);
 	profile->c_t_coeff = randomInt(1, 200);
 	profile->c_zero_w_pitch = randomInt(-10, 10);
@@ -98,7 +98,7 @@ void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
 	profile->c_zero_air_pressure = randomInt(950, 1050);
 	profile->c_zero_air_humidity = randomInt(0, 100);
 	profile->c_zero_air_temperature = randomInt(-20, 30);
-	
+
 	profile->bc_type = randomInt(demo_protocol_GType_G1, demo_protocol_GType_CUSTOM);
 	if (profile->bc_type == demo_protocol_GType_CUSTOM){
 		profile->coef_rows_count = randomInt(10, 200);
