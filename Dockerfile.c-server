@@ -2,7 +2,7 @@
 FROM gcc:latest AS build
 
 # Install necessary packages for building
-RUN apt-get update && apt-get install -y git protobuf-compiler python3 python3-venv
+RUN apt-get update && apt-get install -y git protobuf-compiler python3 python3-venv cmake make
 
 # Create a virtual environment
 RUN python3 -m venv /venv
@@ -24,6 +24,7 @@ COPY server/main.c .
 COPY server/cobs.c .
 COPY server/cobs.h .
 COPY demo_protocol.proto .
+COPY demo_protocol.options .
 
 # Generate the C source and header files from .proto file
 RUN protoc --plugin=protoc-gen-nanopb=/nanopb/generator/protoc-gen-nanopb \
@@ -37,7 +38,7 @@ RUN gcc -Wall -g3 -Og -Werror \
          -DPB_VALIDATE_UTF8=1 \
          -o c_server main.c cobs.c demo_protocol.pb.c \
     /nanopb/pb_encode.c /nanopb/pb_decode.c /nanopb/pb_common.c \
-    -I/nanopb -lpthread
+    -I/nanopb -lpthread -lm
 
 # ---- Final Stage ----
 FROM debian:bookworm-slim
