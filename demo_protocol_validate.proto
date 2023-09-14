@@ -235,9 +235,9 @@ message HostProfile {
 	int32 b_length = 22 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 10000];
 	TwistDir twist_dir = 23;
 	GType bc_type = 24;
-	repeated SwPos switches = 25;
-	repeated int32 distances = 26;
-	repeated CoefRow coef_rows = 27;
+	repeated SwPos switches = 25 [(buf.validate.field).repeated.max_items  = 4, (buf.validate.field).repeated.min_items = 1];
+	repeated int32 distances = 26[(buf.validate.field).repeated.max_items  = 200, (buf.validate.field).repeated.min_items = 4];
+	repeated CoefRow coef_rows = 27 [(buf.validate.field).repeated.max_items  = 200, (buf.validate.field).repeated.min_items = 1, (buf.validate.field).repeated.unique = true];
 	string caliber = 28 [(buf.validate.field).string.max_len = 50];
 	string device_uuid = 29 [(buf.validate.field).string.max_len = 50];
 }
