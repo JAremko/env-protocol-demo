@@ -95,7 +95,7 @@ void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
 	profile->c_t_coeff = randomInt(1, 200);
 	profile->c_zero_w_pitch = randomInt(-10, 10);
 	profile->c_zero_p_temperature = randomInt(-10, 40);
-	profile->c_zero_air_pressure = randomInt(950, 1050);
+	profile->c_zero_air_pressure = randomInt(950, 1050)*10;
 	profile->c_zero_air_humidity = randomInt(0, 100);
 	profile->c_zero_air_temperature = randomInt(-20, 30);
 
