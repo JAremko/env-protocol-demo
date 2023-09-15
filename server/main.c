@@ -72,7 +72,8 @@ void generateRandomHostProfile(demo_protocol_HostProfile *profile) {
 	for (int i = 0; i < profile->distances_count; ++i){
 		profile->distances[i] = randomInt(25, 2500)*100;
 	}
-	for (int i = 0; i < 4; ++i) {
+	profile->switches_count = 4;
+	for (int i = 0; i < profile->switches_count; ++i) {
 		profile->switches[i].distance_from = randomInt(demo_protocol_DType_VALUE, demo_protocol_DType_INDEX);
 		if (profile->switches[i].distance_from == demo_protocol_DType_VALUE){
 			profile->switches[i].distance = randomInt(10, 2500)*100;
