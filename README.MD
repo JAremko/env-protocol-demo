@@ -2,6 +2,8 @@
 
 This project integrates three distinct technologies: a C server that processes Protocol Buffers payloads, a Go proxy that facilitates communication, and a JavaScript frontend. The data flow moves from the JavaScript frontend, through WebSockets and named pipes, to the C server and back. Specifically, the sequence is as follows: JavaScript Frontend ⟷ WebSockets ⟷ Go Proxy ⟷ Named Pipes ⟷ C Server.
 
+![interaction_charts](interaction_charts.png)
+
 ## Table of Contents
 
 - [C Server](#c-server)
